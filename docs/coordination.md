@@ -36,7 +36,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #10: CI and deployment readiness. Closed in baseline.
 - #11: AI visual asset pipeline and scene variants. Closed in baseline docs.
 - #12: Station catalog and source data model. Closed in baseline.
-- #13: Accessibility audit and keyboard/screen-reader polish.
+- #13: Accessibility audit and keyboard/screen-reader polish. Closed in main.
 - #14: Automated test and QA harness. Closed in baseline.
 - #15: PWA install and local preferences. Closed in baseline.
 - #16: Original video/source link. Closed in baseline.
@@ -52,7 +52,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 ## Active Worker Threads
 
 - #4 YouTube player API: merged in main via `fcbc300`; worker thread `019eb7fb-4178-75a1-b86c-ad3fbbd63634`.
-- #13 accessibility: `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`, worktree `/Users/gustavanderson/.codex/worktrees/8aee/elvispresley.cafe`.
+- #13 accessibility: merged in main via `763566a`; worker thread `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`.
 - #17 font licensing: `019eb7fb-9f0c-7972-906d-de83a8d3c559`, worktree `/Users/gustavanderson/.codex/worktrees/82a8/elvispresley.cafe`.
 - #18 visual scene pack: `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`, worktree `/Users/gustavanderson/.codex/worktrees/5b5d/elvispresley.cafe`.
 
@@ -62,7 +62,7 @@ Worker setup should start from committed `main`, not from an uncommitted working
 
 1. Keep coordinator baseline green.
 2. Font licensing/replacement (#17) is merged in main and removes the redistribution risk.
-3. Merge accessibility (#13) before player-heavy work if it changes focus/modal behavior in `components/elvis-cafe.tsx`.
+3. Accessibility (#13) is merged in main. Preserve the focus-managed Timer/About behavior in later UI work.
 4. YouTube integration (#4) is merged in main. Future player work should build on `lib/youtube.ts` and the `YouTubePlayerHost` status hooks.
 5. Merge visual scene pack (#18) after checking asset size and screenshot framing.
 6. Add station drawer (#19) after #4 if the player state API changes.
