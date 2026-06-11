@@ -21,6 +21,7 @@ export type Station = {
   mood: string;
   city: string;
   visualMode: VisualMode;
+  imageSrc: string;
   fallbackStationId?: string;
   source: StationSource;
 };
@@ -37,6 +38,7 @@ const configuredStations: Station[] =
           mood: "YouTube source / custom station / live room",
           city: "elvispresley.cafe",
           visualMode: "neon",
+          imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
           fallbackStationId: "sun-studio-after-dark",
           source: {
             type: "youtube",
@@ -56,6 +58,7 @@ export const stations: Station[] = [
     mood: "early rock / warm tape / slow sway",
     city: "Memphis, Tennessee",
     visualMode: "stage",
+    imageSrc: "/images/elvis-cafe-sun-studio.jpg",
     fallbackStationId: "vegas-midnight-jukebox",
     source: {
       type: "demo",
@@ -68,6 +71,7 @@ export const stations: Station[] = [
     mood: "neon ballads / velvet room / late set",
     city: "Las Vegas, Nevada",
     visualMode: "neon",
+    imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
     fallbackStationId: "graceland-gold-hour",
     source: {
       type: "demo",
@@ -80,6 +84,7 @@ export const stations: Station[] = [
     mood: "gospel glow / brass hits / soft spotlight",
     city: "Memphis, Tennessee",
     visualMode: "dim",
+    imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
     fallbackStationId: "sun-studio-after-dark",
     source: {
       type: "demo",

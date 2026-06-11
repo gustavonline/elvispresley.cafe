@@ -22,10 +22,12 @@ describe("ElvisCafe", () => {
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
 
     expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-sun-studio.jpg");
 
     fireEvent.click(screen.getByRole("button", { name: /next station/i }));
 
     expect(screen.getByTestId("station-title")).toHaveTextContent("Vegas Midnight Jukebox");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
   });
 
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {

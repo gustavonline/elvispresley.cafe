@@ -297,11 +297,12 @@ export function ElvisCafe() {
       data-testid="elvis-cafe"
     >
       <Image
-        src="/images/elvis-cafe-stage.png"
+        src={activeStation.imageSrc}
         alt=""
         fill
         priority
         sizes="100vw"
+        data-testid="station-scene"
         className={`object-cover transition duration-700 ${visualClass} ${isStarted && !isLowPower ? "scale-[1.03]" : ""}`}
       />
 

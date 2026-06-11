@@ -6,10 +6,10 @@ This file tracks the current direction for the MVP while multiple worktrees are 
 
 - Next.js App Router with TypeScript, Tailwind CSS, ESLint.
 - Full-screen Elvis-inspired music room.
-- Generated original hero asset at `public/images/elvis-cafe-stage.png`.
+- Generated original station scenes wired through `Station.imageSrc`.
 - Local player shell with station metadata, play/pause, previous/next, shuffle, volume, fullscreen, and About modal.
 - Pomodoro, shortcuts/help, disable-shortcuts toggle, share/source controls, low-power mode, visual modes, persistent preferences, PWA manifest, CI, and a minimal test harness.
-- Lightweight YouTube embed support exists through public env vars. A richer player API wrapper and automatic skip fallback are still open.
+- YouTube IFrame API support exists through public env vars. Automatic skip fallback is still open.
 
 ## lofi.cafe Inspiration To Adapt
 
@@ -41,7 +41,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #15: PWA install and local preferences. Closed in baseline.
 - #16: Original video/source link. Closed in baseline.
 - #17: Replaced bundled display font with `@fontsource/bebas-neue` (`OFL-1.1`). Closed in main.
-- #18: Create visual scene pack with AI image or loop variants.
+- #18: Create visual scene pack with AI image or loop variants. Closed in main.
 - #19: Add station catalog drawer and station selection flow.
 - #20: Add station health fallback and auto-skip behavior.
 - #21: Add mobile viewport and touch-control polish pass.
@@ -53,8 +53,8 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 
 - #4 YouTube player API: merged in main via `fcbc300`; worker thread `019eb7fb-4178-75a1-b86c-ad3fbbd63634`.
 - #13 accessibility: merged in main via `763566a`; worker thread `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`.
-- #17 font licensing: `019eb7fb-9f0c-7972-906d-de83a8d3c559`, worktree `/Users/gustavanderson/.codex/worktrees/82a8/elvispresley.cafe`.
-- #18 visual scene pack: `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`, worktree `/Users/gustavanderson/.codex/worktrees/5b5d/elvispresley.cafe`.
+- #17 font licensing: merged in main via `3dfd850`; worker thread `019eb7fb-9f0c-7972-906d-de83a8d3c559`.
+- #18 visual scene pack: merged in main; worker thread `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`.
 
 Worker setup should start from committed `main`, not from an uncommitted working-tree diff. The prior worktree setup failure was caused by binary files in an unstaged patch.
 
@@ -64,8 +64,8 @@ Worker setup should start from committed `main`, not from an uncommitted working
 2. Font licensing/replacement (#17) is merged in main and removes the redistribution risk.
 3. Accessibility (#13) is merged in main. Preserve the focus-managed Timer/About behavior in later UI work.
 4. YouTube integration (#4) is merged in main. Future player work should build on `lib/youtube.ts` and the `YouTubePlayerHost` status hooks.
-5. Merge visual scene pack (#18) after checking asset size and screenshot framing.
-6. Add station drawer (#19) after #4 if the player state API changes.
+5. Visual scene pack (#18) is merged in main. Preserve `Station.imageSrc` in later station work.
+6. Add station drawer (#19) after #18, using the existing station metadata instead of hard-coded scene controls.
 7. Add station fallback/auto-skip (#20) after #4, using the player events/status it exposes.
 8. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), and parity QA (#24) as final release passes.
 
