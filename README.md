@@ -28,7 +28,17 @@ NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID
 NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID=PLAYLIST_ID
 ```
 
-The current YouTube path uses a lightweight hidden embed after user interaction. A fuller player API wrapper can wire the custom play/pause controls more tightly later. Real Elvis music should be configured through YouTube or licensed audio sources rather than bundled into this repo.
+Set either variable for a single configured station. If both are set, the video starts inside the playlist context. The app loads the YouTube IFrame API after user start and wires the custom play/pause and volume controls to the hidden `youtube-nocookie.com` player when the source is available.
+
+To verify locally:
+
+```bash
+NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID npm run dev
+```
+
+Then open http://localhost:3000, start the cafe, and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the API reports an unavailable source, the UI exposes that player status and keeps demo stations usable; future issue #20 can build automatic health fallback and auto-skip behavior on that hook.
+
+Real Elvis music should be configured through YouTube or licensed audio sources rather than bundled into this repo.
 
 ## Features
 

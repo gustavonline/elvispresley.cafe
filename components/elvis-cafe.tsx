@@ -19,13 +19,25 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
-import { getStationSourceUrl, getStationStatus, getYouTubeEmbedUrl, stations, type VisualMode } from "@/lib/stations";
+import { getStationSourceUrl, getStationStatus, stations, type StationSource, type VisualMode } from "@/lib/stations";
+import {
+  getYouTubeEmbedUrl,
+  getYouTubeEmbedVideoId,
+  getYouTubePlayerStatusLabel,
+  getYouTubePlayerVars,
+  mapYouTubePlayerState,
+  normalizeYouTubeVolume,
+  youtubeIframeApiScriptId,
+  youtubeIframeApiSrc,
+  type YouTubePlayerStatus,
+} from "@/lib/youtube";
 
 const listenerSeed = 37;
 const timerDefaultSeconds = 25 * 60;
 const visualModes: VisualMode[] = ["stage", "neon", "dim"];
+let youtubeApiPromise: Promise<YouTubeApi> | undefined;
 
 export function ElvisCafe() {
   const [isStarted, setIsStarted] = useState(false);
@@ -41,12 +53,15 @@ export function ElvisCafe() {
   const [isLowPower, setIsLowPower] = useState(defaultPreferences.isLowPower);
   const [visualModeOverride, setVisualModeOverride] = useState<VisualMode | undefined>(defaultPreferences.visualMode);
   const [shareStatus, setShareStatus] = useState<string | undefined>();
+  const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
 
   const activeStation = stations[stationIndex];
   const effectiveVisualMode = visualModeOverride ?? activeStation.visualMode;
   const sourceUrl = getStationSourceUrl(activeStation);
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(activeStation);
   const stationStatus = getStationStatus(activeStation);
+  const youtubeStatusLabel =
+    activeStation.source.type === "youtube" ? getYouTubePlayerStatusLabel(youtubePlayerStatus, activeStation.fallbackStationId) : undefined;
+  const playerStatus = shareStatus ?? youtubeStatusLabel ?? stationStatus;
   const listeningNow = useMemo(() => listenerSeed + stationIndex * 6 + (isPlaying ? 11 : 0), [isPlaying, stationIndex]);
 
   const requestFullscreen = useCallback(() => {
@@ -132,6 +147,10 @@ export function ElvisCafe() {
       volume,
     });
   }, [disabledShortcuts, isLowPower, visualModeOverride, volume]);
+
+  useEffect(() => {
+    setYoutubePlayerStatus("idle");
+  }, [activeStation.id]);
 
   useEffect(() => {
     if (!isTimerRunning) {
@@ -243,12 +262,13 @@ export function ElvisCafe() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,242,216,0.08),transparent_34%),linear-gradient(180deg,rgba(9,7,11,0.08),rgba(9,7,11,0.76))]" />
       <div className="crt-overlay absolute inset-0" />
       <div className="noise-overlay absolute inset-0" />
-      {isStarted && youtubeEmbedUrl ? (
-        <iframe
+      {isStarted && activeStation.source.type === "youtube" ? (
+        <YouTubePlayerHost
+          isPlaying={isPlaying}
+          source={activeStation.source}
           title={`${activeStation.title} YouTube source`}
-          src={youtubeEmbedUrl}
-          allow="autoplay; encrypted-media; picture-in-picture"
-          className="pointer-events-none absolute bottom-0 left-0 size-px opacity-0"
+          volume={volume}
+          onStatusChange={setYoutubePlayerStatus}
         />
       ) : null}
 
@@ -320,7 +340,7 @@ export function ElvisCafe() {
             stationTitle={activeStation.title}
             stationMood={activeStation.mood}
             stationCity={activeStation.city}
-            stationStatus={stationStatus}
+            stationStatus={playerStatus}
             isShuffled={isShuffled}
             sourceUrl={sourceUrl}
             volume={volume}
@@ -347,6 +367,190 @@ export function ElvisCafe() {
         />
       ) : null}
     </main>
+  );
+}
+
+type YouTubeApi = {
+  Player: new (
+    element: HTMLElement,
+    options: {
+      videoId?: string;
+      playerVars?: Record<string, string | number>;
+      events?: {
+        onReady?: (event: YouTubePlayerEvent) => void;
+        onStateChange?: (event: YouTubePlayerStateChangeEvent) => void;
+        onError?: () => void;
+      };
+    },
+  ) => YouTubePlayer;
+};
+
+type YouTubePlayer = {
+  destroy: () => void;
+  pauseVideo: () => void;
+  playVideo: () => void;
+  setVolume: (volume: number) => void;
+};
+
+type YouTubePlayerEvent = {
+  target: YouTubePlayer;
+};
+
+type YouTubePlayerStateChangeEvent = {
+  data: number;
+};
+
+declare global {
+  interface Window {
+    YT?: YouTubeApi;
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+function loadYouTubeIframeApi() {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("YouTube API requires a browser window."));
+  }
+
+  if (window.YT?.Player) {
+    return Promise.resolve(window.YT);
+  }
+
+  if (youtubeApiPromise) {
+    return youtubeApiPromise;
+  }
+
+  youtubeApiPromise = new Promise<YouTubeApi>((resolve, reject) => {
+    const existingScript = document.getElementById(youtubeIframeApiScriptId);
+    const previousReadyCallback = window.onYouTubeIframeAPIReady;
+
+    window.onYouTubeIframeAPIReady = () => {
+      previousReadyCallback?.();
+
+      if (window.YT?.Player) {
+        resolve(window.YT);
+        return;
+      }
+
+      reject(new Error("YouTube API loaded without Player support."));
+    };
+
+    if (existingScript) {
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = youtubeIframeApiScriptId;
+    script.src = youtubeIframeApiSrc;
+    script.async = true;
+    script.onerror = () => reject(new Error("YouTube API failed to load."));
+    document.head.appendChild(script);
+  });
+
+  return youtubeApiPromise;
+}
+
+type YouTubePlayerHostProps = {
+  isPlaying: boolean;
+  source: Extract<StationSource, { type: "youtube" }>;
+  title: string;
+  volume: number;
+  onStatusChange: (status: YouTubePlayerStatus) => void;
+};
+
+function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }: YouTubePlayerHostProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
+  const isPlayingRef = useRef(isPlaying);
+  const volumeRef = useRef(volume);
+  const embedUrl = getYouTubeEmbedUrl(source);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    volumeRef.current = volume;
+  }, [volume]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    const videoId = getYouTubeEmbedVideoId(source);
+
+    if (!videoId) {
+      onStatusChange("unavailable");
+      return undefined;
+    }
+
+    onStatusChange("loading");
+
+    void loadYouTubeIframeApi()
+      .then((youtubeApi) => {
+        if (isCancelled || !iframeRef.current) {
+          return;
+        }
+
+        const player = new youtubeApi.Player(iframeRef.current, {
+          videoId,
+          playerVars: getYouTubePlayerVars(source, window.location.origin),
+          events: {
+            onReady: (event) => {
+              playerRef.current = event.target;
+              event.target.setVolume(normalizeYouTubeVolume(volumeRef.current));
+
+              if (isPlayingRef.current) {
+                event.target.playVideo();
+              } else {
+                event.target.pauseVideo();
+              }
+
+              onStatusChange("ready");
+            },
+            onStateChange: (event) => onStatusChange(mapYouTubePlayerState(event.data)),
+            onError: () => onStatusChange("unavailable"),
+          },
+        });
+
+        playerRef.current = player;
+      })
+      .catch(() => onStatusChange("unavailable"));
+
+    return () => {
+      isCancelled = true;
+      playerRef.current?.destroy();
+      playerRef.current = null;
+    };
+  }, [onStatusChange, source, source.youtubePlaylistId, source.youtubeVideoId]);
+
+  useEffect(() => {
+    playerRef.current?.setVolume(normalizeYouTubeVolume(volume));
+  }, [volume]);
+
+  useEffect(() => {
+    if (!playerRef.current) {
+      return;
+    }
+
+    if (isPlaying) {
+      playerRef.current.playVideo();
+      return;
+    }
+
+    playerRef.current.pauseVideo();
+  }, [isPlaying]);
+
+  return (
+    <div className="pointer-events-none absolute bottom-0 left-0 size-px overflow-hidden opacity-0" aria-hidden="true">
+      {embedUrl ? (
+        <iframe
+          ref={iframeRef}
+          title={title}
+          src={embedUrl}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          className="size-px"
+        />
+      ) : null}
+    </div>
   );
 }
 

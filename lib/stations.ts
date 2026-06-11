@@ -1,3 +1,5 @@
+import { getYouTubeEmbedUrl as buildYouTubeEmbedUrl, getYouTubeSourceUrl } from "./youtube";
+
 export type VisualMode = "stage" | "neon" | "dim";
 
 export type StationSource =
@@ -95,15 +97,7 @@ export function getStationSourceUrl(station: Station) {
     return station.source.originalUrl;
   }
 
-  if (station.source.youtubeVideoId) {
-    return `https://www.youtube.com/watch?v=${station.source.youtubeVideoId}`;
-  }
-
-  if (station.source.youtubePlaylistId) {
-    return `https://www.youtube.com/playlist?list=${station.source.youtubePlaylistId}`;
-  }
-
-  return undefined;
+  return getYouTubeSourceUrl(station.source);
 }
 
 export function getStationStatus(station: Station) {
@@ -122,29 +116,10 @@ export function getStationStatus(station: Station) {
   return "YouTube source ready";
 }
 
-export function getYouTubeEmbedUrl(station: Station) {
+export function getYouTubeEmbedUrl(station: Station, origin?: string) {
   if (station.source.type !== "youtube") {
     return undefined;
   }
 
-  const params = new URLSearchParams({
-    autoplay: "1",
-    controls: "0",
-    modestbranding: "1",
-    rel: "0",
-  });
-
-  if (station.source.youtubePlaylistId) {
-    params.set("list", station.source.youtubePlaylistId);
-  }
-
-  if (station.source.youtubeVideoId) {
-    return `https://www.youtube-nocookie.com/embed/${station.source.youtubeVideoId}?${params.toString()}`;
-  }
-
-  if (station.source.youtubePlaylistId) {
-    return `https://www.youtube-nocookie.com/embed/videoseries?${params.toString()}`;
-  }
-
-  return undefined;
+  return buildYouTubeEmbedUrl(station.source, origin);
 }
