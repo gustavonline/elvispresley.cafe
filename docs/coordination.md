@@ -28,31 +28,46 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 ## Issue Map
 
 - #4: YouTube playlist integration and station health fallback.
-- #5: Responsive QA and polish.
-- #6: Pomodoro focus timer.
-- #7: Keyboard shortcuts and help panel.
-- #8: Low-power and visual modes.
-- #9: Social sharing and metadata polish.
-- #10: CI and deployment readiness.
-- #11: AI visual asset pipeline and scene variants.
-- #12: Station catalog and source data model.
+- #5: Responsive QA and polish. Closed in baseline.
+- #6: Pomodoro focus timer. Closed in baseline.
+- #7: Keyboard shortcuts and help panel. Closed in baseline.
+- #8: Low-power and visual modes. Closed in baseline.
+- #9: Social sharing and metadata polish. Closed in baseline.
+- #10: CI and deployment readiness. Closed in baseline.
+- #11: AI visual asset pipeline and scene variants. Closed in baseline docs.
+- #12: Station catalog and source data model. Closed in baseline.
 - #13: Accessibility audit and keyboard/screen-reader polish.
-- #14: Automated test and QA harness.
-- #15: PWA install and local preferences.
-- #16: Original video/source link.
+- #14: Automated test and QA harness. Closed in baseline.
+- #15: PWA install and local preferences. Closed in baseline.
+- #16: Original video/source link. Closed in baseline.
 - #17: Confirm or replace bundled display font.
+- #18: Create visual scene pack with AI image or loop variants.
+- #19: Add station catalog drawer and station selection flow.
+- #20: Add station health fallback and auto-skip behavior.
+- #21: Add mobile viewport and touch-control polish pass.
+- #22: Prepare Vercel demo deployment and environment setup docs.
+- #23: Polish about/help overlay with credits, shortcuts, and source safety.
+- #24: Run lofi.cafe parity QA and close MVP gaps.
+
+## Active Worker Threads
+
+- #4 YouTube player API: `019eb7fb-4178-75a1-b86c-ad3fbbd63634`, worktree `/Users/gustavanderson/.codex/worktrees/da91/elvispresley.cafe`.
+- #13 accessibility: `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`, worktree `/Users/gustavanderson/.codex/worktrees/8aee/elvispresley.cafe`.
+- #17 font licensing: `019eb7fb-9f0c-7972-906d-de83a8d3c559`, worktree `/Users/gustavanderson/.codex/worktrees/82a8/elvispresley.cafe`.
+- #18 visual scene pack: `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`, worktree `/Users/gustavanderson/.codex/worktrees/5b5d/elvispresley.cafe`.
+
+Worker setup should start from committed `main`, not from an uncommitted working-tree diff. The prior worktree setup failure was caused by binary files in an unstaged patch.
 
 ## Suggested Merge Order
 
 1. Keep coordinator baseline green.
-2. Merge CI/docs and asset-pipeline docs first if they only touch `.github/` and docs.
-3. Station data model (#12), source-link (#16), metadata/share (#9), PWA preferences (#15), CI (#10), and tests (#14) are implemented in the coordinator baseline.
-4. Merge metadata/share (#9), PWA preferences (#15), and source-link (#16) only after checking whether they touch the same player controls.
-5. Merge Pomodoro/shortcuts (#6/#7), accessibility (#13), and visual modes (#8) carefully because they may all touch `components/elvis-cafe.tsx`.
-6. Keep tests updated through later merges.
-7. Merge any additional visual assets (#11) after confirming size/performance.
-8. Merge font licensing/replacement (#17) independently before release.
-9. Merge YouTube integration (#4) last, after player UI decisions stabilize.
+2. Merge font licensing/replacement (#17) early because it removes redistribution risk and should not conflict heavily.
+3. Merge accessibility (#13) before player-heavy work if it changes focus/modal behavior in `components/elvis-cafe.tsx`.
+4. Merge YouTube integration (#4) once player tests are green.
+5. Merge visual scene pack (#18) after checking asset size and screenshot framing.
+6. Add station drawer (#19) after #4 if the player state API changes.
+7. Add station fallback/auto-skip (#20) after #4, using the player events/status it exposes.
+8. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), and parity QA (#24) as final release passes.
 
 ## Verification Gates
 
