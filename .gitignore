@@ -1,0 +1,10 @@
+.DS_Store
+.env*
+.next/
+node_modules/
+out/
+coverage/
+dist/
+*.log
+.playwright-cli/
+output/
