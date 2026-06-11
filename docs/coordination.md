@@ -48,6 +48,10 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #22: Prepare Vercel demo deployment and environment setup docs.
 - #23: Polish about/help overlay with credits, shortcuts, and source safety.
 - #24: Run lofi.cafe parity QA and close MVP gaps.
+- #25: Add ambient room SFX layer and mute control.
+- #26: Add cinematic scene transitions between stations.
+- #27: Add station seed data for Elvis-safe public playlists.
+- #28: Add screenshot regression and lofi parity QA script.
 
 ## Active Worker Threads
 
@@ -55,6 +59,8 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #13 accessibility: merged in main via `763566a`; worker thread `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`.
 - #17 font licensing: merged in main via `3dfd850`; worker thread `019eb7fb-9f0c-7972-906d-de83a8d3c559`.
 - #18 visual scene pack: merged in main; worker thread `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`.
+- #19 station drawer: active worker thread `019eb80a-6f76-7931-bf1e-10263a2a4de9`, worktree `/Users/gustavanderson/.codex/worktrees/21d1/elvispresley.cafe`.
+- #20 fallback/auto-skip: active worker thread `019eb80a-7058-7f10-a1c7-852480bfc6fc`, worktree `/Users/gustavanderson/.codex/worktrees/b6ea/elvispresley.cafe`.
 
 Worker setup should start from committed `main`, not from an uncommitted working-tree diff. The prior worktree setup failure was caused by binary files in an unstaged patch.
 
@@ -67,7 +73,9 @@ Worker setup should start from committed `main`, not from an uncommitted working
 5. Visual scene pack (#18) is merged in main. Preserve `Station.imageSrc` in later station work.
 6. Add station drawer (#19) after #18, using the existing station metadata instead of hard-coded scene controls.
 7. Add station fallback/auto-skip (#20) after #4, using the player events/status it exposes.
-8. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), and parity QA (#24) as final release passes.
+8. Merge #19 before #21/#23 if it changes shared modal/focus helpers.
+9. Merge #20 before #24 so parity QA tests the final fallback behavior.
+10. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), ambience (#25), transitions (#26), playlist seeding (#27), screenshot regression (#28), and parity QA (#24) as final release passes.
 
 ## Verification Gates
 
