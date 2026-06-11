@@ -10,7 +10,7 @@ This file tracks the current direction for the MVP while multiple worktrees are 
 - Local player shell with station metadata, play/pause, previous/next, shuffle, volume, fullscreen, and About modal.
 - Top-right station catalog drawer lists all stations with city, mood, source/status, and direct selection.
 - Pomodoro, shortcuts/help, disable-shortcuts toggle, share/source controls, low-power mode, visual modes, persistent preferences, PWA manifest, CI, and a minimal test harness.
-- YouTube IFrame API support exists through public env vars. Automatic skip fallback is still open.
+- YouTube IFrame API support exists through public env vars. Clear unavailable/private/embed-blocked source failures now auto-skip through a bounded fallback path.
 
 ## lofi.cafe Inspiration To Adapt
 
@@ -29,7 +29,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 
 ## Issue Map
 
-- #4: YouTube playlist integration. Closed in main; automatic fallback remains #20.
+- #4: YouTube playlist integration. Closed in main.
 - #5: Responsive QA and polish. Closed in baseline.
 - #6: Pomodoro focus timer. Closed in baseline.
 - #7: Keyboard shortcuts and help panel. Closed in baseline.
@@ -44,8 +44,8 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #16: Original video/source link. Closed in baseline.
 - #17: Replaced bundled display font with `@fontsource/bebas-neue` (`OFL-1.1`). Closed in main.
 - #18: Create visual scene pack with AI image or loop variants. Closed in main.
-- #19: Add station catalog drawer and station selection flow.
-- #20: Add station health fallback and auto-skip behavior.
+- #19: Add station catalog drawer and station selection flow. Closed in main.
+- #20: Add station health fallback and auto-skip behavior. Closed in main.
 - #21: Add mobile viewport and touch-control polish pass.
 - #22: Prepare Vercel demo deployment and environment setup docs.
 - #23: Polish about/help overlay with credits, shortcuts, and source safety.
@@ -61,8 +61,8 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #13 accessibility: merged in main via `763566a`; worker thread `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`.
 - #17 font licensing: merged in main via `3dfd850`; worker thread `019eb7fb-9f0c-7972-906d-de83a8d3c559`.
 - #18 visual scene pack: merged in main; worker thread `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`.
-- #19 station drawer: active worker thread `019eb80a-6f76-7931-bf1e-10263a2a4de9`, worktree `/Users/gustavanderson/.codex/worktrees/21d1/elvispresley.cafe`.
-- #20 fallback/auto-skip: active worker thread `019eb80a-7058-7f10-a1c7-852480bfc6fc`, worktree `/Users/gustavanderson/.codex/worktrees/b6ea/elvispresley.cafe`.
+- #19 station drawer: merged in main via `3c4f4d6`; worker thread `019eb80a-6f76-7931-bf1e-10263a2a4de9`.
+- #20 fallback/auto-skip: merged in main; worker thread `019eb80a-7058-7f10-a1c7-852480bfc6fc`.
 
 Worker setup should start from committed `main`, not from an uncommitted working-tree diff. The prior worktree setup failure was caused by binary files in an unstaged patch.
 
@@ -73,11 +73,9 @@ Worker setup should start from committed `main`, not from an uncommitted working
 3. Accessibility (#13) is merged in main. Preserve the focus-managed Timer/About behavior in later UI work.
 4. YouTube integration (#4) is merged in main. Future player work should build on `lib/youtube.ts` and the `YouTubePlayerHost` status hooks.
 5. Visual scene pack (#18) is merged in main. Preserve `Station.imageSrc` in later station work.
-6. Add station drawer (#19) after #18, using the existing station metadata instead of hard-coded scene controls.
-7. Add station fallback/auto-skip (#20) after #4, using the player events/status it exposes.
-8. Merge #19 before #21/#23 if it changes shared modal/focus helpers.
-9. Merge #20 before #24 so parity QA tests the final fallback behavior.
-10. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), ambience (#25), transitions (#26), playlist seeding (#27), screenshot regression (#28), and parity QA (#24) as final release passes.
+6. Station drawer (#19) is merged in main. Preserve shared modal/focus helpers in later UI work.
+7. Station fallback/auto-skip (#20) is merged in main. Future player work should respect the bounded retry set.
+8. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), ambience (#25), transitions (#26), playlist seeding (#27), screenshot regression (#28), and parity QA (#24) as final release passes.
 
 ## Verification Gates
 

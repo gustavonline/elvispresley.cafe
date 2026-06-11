@@ -36,7 +36,9 @@ To verify locally:
 NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID npm run dev
 ```
 
-Then open http://localhost:3000, start the cafe, and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the API reports an unavailable source, the UI exposes that player status and keeps demo stations usable; future issue #20 can build automatic health fallback and auto-skip behavior on that hook.
+Then open http://localhost:3000, start the cafe, and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the IFrame API reports a source as unavailable, private, invalid, or blocked from embedding, the app shows a concise fallback status and automatically skips to that station's `fallbackStationId`. If that fallback is missing or was already tried in the same auto-skip chain, the app moves to the next unattempted station instead. Auto-skip attempts are bounded to one pass through the station list so a broken set of YouTube sources cannot loop endlessly.
+
+This fallback depends on errors surfaced by the YouTube IFrame API or API load failures. Some network stalls, regional restrictions, ad states, or normal video endings may not produce a reliable unavailable event, so they are reported through the player status line when possible instead of being guessed.
 
 Real Elvis music should be configured through YouTube or licensed audio sources rather than bundled into this repo.
 

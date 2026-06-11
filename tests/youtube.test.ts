@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getStationFallbackPlan, type Station } from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
@@ -65,5 +66,43 @@ describe("YouTube helpers", () => {
     expect(getYouTubePlayerStatusLabel("unavailable", "sun-studio-after-dark")).toBe(
       "YouTube source unavailable - fallback station available",
     );
+  });
+});
+
+const demoStation = (id: string, fallbackStationId?: string): Station => ({
+  id,
+  title: id,
+  mood: "test mood",
+  city: "test city",
+  visualMode: "stage",
+  fallbackStationId,
+  imageSrc: "/images/elvis-cafe-stage.png",
+  source: {
+    type: "demo",
+    health: "ready",
+  },
+});
+
+describe("station fallback helpers", () => {
+  it("prefers a configured fallback station before linear next", () => {
+    const testStations = [demoStation("broken", "third"), demoStation("second"), demoStation("third")];
+
+    expect(getStationFallbackPlan(testStations, 0, new Set())?.station.id).toBe("third");
+    expect(getStationFallbackPlan(testStations, 0, new Set())?.mode).toBe("configured");
+  });
+
+  it("falls back to the next unattempted station when the configured fallback is exhausted", () => {
+    const testStations = [demoStation("broken", "third"), demoStation("second"), demoStation("third")];
+
+    const plan = getStationFallbackPlan(testStations, 0, new Set(["third"]));
+
+    expect(plan?.station.id).toBe("second");
+    expect(plan?.mode).toBe("next");
+  });
+
+  it("returns no plan after every other station has already been attempted", () => {
+    const testStations = [demoStation("broken", "third"), demoStation("second"), demoStation("third")];
+
+    expect(getStationFallbackPlan(testStations, 0, new Set(["second", "third"]))).toBeUndefined();
   });
 });

@@ -1,11 +1,14 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ElvisCafe } from "@/components/elvis-cafe";
+import { stations, type Station } from "@/lib/stations";
 
 vi.mock("next/image", () => ({
   default: ({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => React.createElement("img", { alt, ...props }),
 }));
+
+const originalStations = [...stations];
 
 describe("ElvisCafe", () => {
   beforeEach(() => {
@@ -14,6 +17,8 @@ describe("ElvisCafe", () => {
 
   afterEach(() => {
     cleanup();
+    stations.splice(0, stations.length, ...originalStations);
+    delete window.YT;
   });
 
   it("starts the player and changes stations", () => {
@@ -133,5 +138,50 @@ describe("ElvisCafe", () => {
 
     expect(screen.queryByRole("region", { name: /pomodoro timer/i })).not.toBeInTheDocument();
     expect(timerButton).toHaveFocus();
+  });
+
+  it("auto-skips a YouTube station when the iframe API reports it unavailable", async () => {
+    const brokenStation: Station = {
+      id: "broken-youtube",
+      title: "Broken YouTube",
+      mood: "test source",
+      city: "test city",
+      visualMode: "neon",
+      imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+      fallbackStationId: "sun-studio-after-dark",
+      source: {
+        type: "youtube",
+        health: "unverified",
+        youtubeVideoId: "broken123",
+      },
+    };
+    type FakeYouTubePlayerOptions = {
+      events?: {
+        onError?: (event: { data: number }) => void;
+      };
+    };
+    const player = {
+      destroy: vi.fn(),
+      pauseVideo: vi.fn(),
+      playVideo: vi.fn(),
+      setVolume: vi.fn(),
+    };
+    const Player = vi.fn((_element: HTMLElement, options: FakeYouTubePlayerOptions) => {
+      options.events?.onError?.({ data: 100 });
+      return player;
+    });
+
+    stations.unshift(brokenStation);
+    window.YT = { Player };
+
+    render(<ElvisCafe />);
+
+    fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+    });
+    expect(screen.getByTestId("station-status")).toHaveTextContent("source unavailable - switched to Sun Studio After Dark");
+    expect(Player).toHaveBeenCalledTimes(1);
   });
 });

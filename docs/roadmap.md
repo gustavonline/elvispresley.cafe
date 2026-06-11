@@ -9,7 +9,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 - Users can start playback with a click or key press.
 - Player controls are clear, keyboard reachable, and stable on desktop and mobile.
 - Stations are configured as typed data, not hard-coded into UI components.
-- YouTube playback can be configured; unavailable sources show status and should continue improving toward automatic skip/fallback behavior.
+- YouTube playback can be configured; unavailable sources show status and auto-skip to a bounded fallback path when the IFrame API reports a clear source failure.
 - Utility features from lofi.cafe are adapted where useful: Pomodoro, shortcuts/help, low-power mode, share/source actions.
 - The app has basic CI, tests, metadata, PWA manifest, and documentation.
 
@@ -23,7 +23,8 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
    - Complete typed station catalog.
    - Completed: typed source URL handling in station metadata.
    - Completed: lightweight YouTube playlist/video embed integration through public env vars.
-   - Still needed: richer YouTube player API controls and automatic skip fallback.
+   - Completed: automatic skip fallback for clear YouTube unavailable/private/embed-blocked failures.
+   - Still needed: richer YouTube player API controls.
 
 3. **Interaction Layer**
    - Completed: Pomodoro panel.

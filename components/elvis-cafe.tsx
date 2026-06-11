@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
-import { getStationSourceUrl, getStationStatus, stations, type Station, type StationSource, type VisualMode } from "@/lib/stations";
+import { getStationFallbackPlan, getStationSourceUrl, getStationStatus, stations, type Station, type StationSource, type VisualMode } from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
@@ -89,11 +89,13 @@ export function ElvisCafe() {
   const [isLowPower, setIsLowPower] = useState(defaultPreferences.isLowPower);
   const [visualModeOverride, setVisualModeOverride] = useState<VisualMode | undefined>(defaultPreferences.visualMode);
   const [shareStatus, setShareStatus] = useState<string | undefined>();
+  const [stationFallbackStatus, setStationFallbackStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
   const catalogButtonRef = useRef<HTMLButtonElement>(null);
   const timerButtonRef = useRef<HTMLButtonElement>(null);
   const catalogDrawerId = useId();
+  const autoFallbackAttemptedStationIdsRef = useRef<Set<string>>(new Set());
   const timerPanelId = useId();
   const aboutModalId = useId();
 
@@ -103,7 +105,7 @@ export function ElvisCafe() {
   const stationStatus = getStationStatus(activeStation);
   const youtubeStatusLabel =
     activeStation.source.type === "youtube" ? getYouTubePlayerStatusLabel(youtubePlayerStatus, activeStation.fallbackStationId) : undefined;
-  const playerStatus = shareStatus ?? youtubeStatusLabel ?? stationStatus;
+  const playerStatus = shareStatus ?? stationFallbackStatus ?? youtubeStatusLabel ?? stationStatus;
   const listeningNow = useMemo(() => listenerSeed + stationIndex * 6 + (isPlaying ? 11 : 0), [isPlaying, stationIndex]);
 
   const requestFullscreen = useCallback(() => {
@@ -132,6 +134,8 @@ export function ElvisCafe() {
   const goToStation = useCallback(
     (direction: 1 | -1) => {
       setShareStatus(undefined);
+      setStationFallbackStatus(undefined);
+      autoFallbackAttemptedStationIdsRef.current.clear();
       setStationIndex((current) => {
         if (isShuffled) {
           return (current + 2) % stations.length;
@@ -151,6 +155,8 @@ export function ElvisCafe() {
     }
 
     setShareStatus(undefined);
+    setStationFallbackStatus(undefined);
+    autoFallbackAttemptedStationIdsRef.current.clear();
     setStationIndex(nextStationIndex);
     setIsCatalogOpen(false);
   }, []);
@@ -205,6 +211,36 @@ export function ElvisCafe() {
   useEffect(() => {
     setYoutubePlayerStatus("idle");
   }, [activeStation.id]);
+
+  useEffect(() => {
+    if (youtubePlayerStatus === "playing" || youtubePlayerStatus === "ready") {
+      setStationFallbackStatus(undefined);
+    }
+  }, [youtubePlayerStatus]);
+
+  useEffect(() => {
+    if (!isStarted || activeStation.source.type !== "youtube" || youtubePlayerStatus !== "unavailable") {
+      return;
+    }
+
+    const attemptedStationIds = autoFallbackAttemptedStationIdsRef.current;
+
+    if (attemptedStationIds.has(activeStation.id)) {
+      return;
+    }
+
+    const fallbackPlan = getStationFallbackPlan(stations, stationIndex, attemptedStationIds);
+    attemptedStationIds.add(activeStation.id);
+    setShareStatus(undefined);
+
+    if (!fallbackPlan) {
+      setStationFallbackStatus("source unavailable - no fallback left");
+      return;
+    }
+
+    setStationFallbackStatus(fallbackPlan.message);
+    setStationIndex(fallbackPlan.stationIndex);
+  }, [activeStation.id, activeStation.source.type, isStarted, stationIndex, youtubePlayerStatus]);
 
   useEffect(() => {
     if (!isTimerRunning) {
@@ -719,7 +755,9 @@ function PlayerDock({
         </p>
         <p className="truncate text-sm text-shell/86">{stationMood}</p>
         <p className="text-xs uppercase text-neon/85">{stationCity}</p>
-        <p className="mt-1 text-xs uppercase text-shell/60">{shareStatus ?? stationStatus}</p>
+        <p className="mt-1 text-xs uppercase text-shell/60" data-testid="station-status">
+          {shareStatus ?? stationStatus}
+        </p>
       </div>
 
       <label className="flex min-h-10 items-center justify-center gap-2 text-shell/90 sm:justify-end">

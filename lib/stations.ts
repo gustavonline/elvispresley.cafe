@@ -26,6 +26,13 @@ export type Station = {
   source: StationSource;
 };
 
+export type StationFallbackPlan = {
+  station: Station;
+  stationIndex: number;
+  message: string;
+  mode: "configured" | "next";
+};
+
 const configuredYoutubeVideoId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID;
 const configuredYoutubePlaylistId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID;
 
@@ -119,6 +126,48 @@ export function getStationStatus(station: Station) {
   }
 
   return "YouTube source ready";
+}
+
+export function getStationFallbackPlan(allStations: Station[], currentIndex: number, attemptedStationIds: ReadonlySet<string>): StationFallbackPlan | undefined {
+  const currentStation = allStations[currentIndex];
+
+  if (!currentStation || allStations.length <= 1) {
+    return undefined;
+  }
+
+  const attemptedWithCurrent = new Set(attemptedStationIds);
+  attemptedWithCurrent.add(currentStation.id);
+  const candidateIndexes: number[] = [];
+  const fallbackIndex = currentStation.fallbackStationId
+    ? allStations.findIndex((station) => station.id === currentStation.fallbackStationId)
+    : -1;
+
+  if (fallbackIndex >= 0 && fallbackIndex !== currentIndex) {
+    candidateIndexes.push(fallbackIndex);
+  }
+
+  for (let offset = 1; offset < allStations.length; offset += 1) {
+    const nextIndex = (currentIndex + offset) % allStations.length;
+
+    if (!candidateIndexes.includes(nextIndex)) {
+      candidateIndexes.push(nextIndex);
+    }
+  }
+
+  const stationIndex = candidateIndexes.find((candidateIndex) => !attemptedWithCurrent.has(allStations[candidateIndex].id));
+
+  if (stationIndex === undefined) {
+    return undefined;
+  }
+
+  const station = allStations[stationIndex];
+
+  return {
+    station,
+    stationIndex,
+    message: `source unavailable - switched to ${station.title}`,
+    mode: stationIndex === fallbackIndex ? "configured" : "next",
+  };
 }
 
 export function getYouTubeEmbedUrl(station: Station, origin?: string) {
