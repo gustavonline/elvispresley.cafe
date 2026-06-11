@@ -27,7 +27,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 
 ## Issue Map
 
-- #4: YouTube playlist integration and station health fallback.
+- #4: YouTube playlist integration. Closed in main; automatic fallback remains #20.
 - #5: Responsive QA and polish. Closed in baseline.
 - #6: Pomodoro focus timer. Closed in baseline.
 - #7: Keyboard shortcuts and help panel. Closed in baseline.
@@ -40,7 +40,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #14: Automated test and QA harness. Closed in baseline.
 - #15: PWA install and local preferences. Closed in baseline.
 - #16: Original video/source link. Closed in baseline.
-- #17: Replaced bundled display font with `@fontsource/bebas-neue` (`OFL-1.1`).
+- #17: Replaced bundled display font with `@fontsource/bebas-neue` (`OFL-1.1`). Closed in main.
 - #18: Create visual scene pack with AI image or loop variants.
 - #19: Add station catalog drawer and station selection flow.
 - #20: Add station health fallback and auto-skip behavior.
@@ -51,7 +51,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 
 ## Active Worker Threads
 
-- #4 YouTube player API: `019eb7fb-4178-75a1-b86c-ad3fbbd63634`, worktree `/Users/gustavanderson/.codex/worktrees/da91/elvispresley.cafe`.
+- #4 YouTube player API: merged in main via `fcbc300`; worker thread `019eb7fb-4178-75a1-b86c-ad3fbbd63634`.
 - #13 accessibility: `019eb7fb-6dbd-74b2-9a43-2d2f5f11f9cd`, worktree `/Users/gustavanderson/.codex/worktrees/8aee/elvispresley.cafe`.
 - #17 font licensing: `019eb7fb-9f0c-7972-906d-de83a8d3c559`, worktree `/Users/gustavanderson/.codex/worktrees/82a8/elvispresley.cafe`.
 - #18 visual scene pack: `019eb7fb-d703-7233-a4e4-5651b4b2b8ba`, worktree `/Users/gustavanderson/.codex/worktrees/5b5d/elvispresley.cafe`.
@@ -63,7 +63,7 @@ Worker setup should start from committed `main`, not from an uncommitted working
 1. Keep coordinator baseline green.
 2. Font licensing/replacement (#17) is merged in main and removes the redistribution risk.
 3. Merge accessibility (#13) before player-heavy work if it changes focus/modal behavior in `components/elvis-cafe.tsx`.
-4. Merge YouTube integration (#4) once player tests are green.
+4. YouTube integration (#4) is merged in main. Future player work should build on `lib/youtube.ts` and the `YouTubePlayerHost` status hooks.
 5. Merge visual scene pack (#18) after checking asset size and screenshot framing.
 6. Add station drawer (#19) after #4 if the player state API changes.
 7. Add station fallback/auto-skip (#20) after #4, using the player events/status it exposes.
