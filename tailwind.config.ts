@@ -16,7 +16,7 @@ const config: Config = {
         shell: "#fff2d8",
       },
       fontFamily: {
-        display: ["var(--font-trade-gothic)", "Impact", "Arial Narrow", "sans-serif"],
+        display: ['"Bebas Neue"', "Impact", "Arial Narrow", "sans-serif"],
         body: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {

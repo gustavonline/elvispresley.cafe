@@ -46,8 +46,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 ## Current Risk Areas
 
 - Several workers may touch `components/elvis-cafe.tsx`; merge order matters.
-- The original font file should be treated as provisional until licensing is confirmed.
-- Issue #17 tracks confirming or replacing the bundled display font before release.
+- Issue #17 resolved the provisional bundled display font by replacing it with `@fontsource/bebas-neue`, an `OFL-1.1` licensed npm package.
 - Real Elvis music should come from user-configured YouTube sources or licensed audio only.
 - YouTube embeds require user interaction before playback and must handle unavailable videos.
 

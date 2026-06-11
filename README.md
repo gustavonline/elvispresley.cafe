@@ -47,6 +47,10 @@ The current YouTube path uses a lightweight hidden embed after user interaction.
 
 > Create an original retro rock-and-roll cafe background inspired by 1950s Memphis and neon Las Vegas, suitable for an Elvis-themed music listening app. Do not depict Elvis Presley directly and do not include a recognizable celebrity face. Nighttime stage cafe with a vintage jukebox, gold microphone stand, red velvet curtains, blue and pink neon signs, subtle Memphis street/cafe details, warm spotlights, polished checkerboard floor, distant marquee lights. High-quality pixel-art / retro game background, cinematic, atmospheric, rich but not cluttered, full-bleed 16:9 composition, darker edges for UI readability. No readable text, no logos, no watermark.
 
+## Font licensing
+
+The display typeface is Bebas Neue via `@fontsource/bebas-neue`. It is distributed under the SIL Open Font License 1.1 (`OFL-1.1`), which is suitable for bundling and web redistribution. Fontsource keeps the web font files inside the npm package so the app can self-host the font during deployment without committing a separate font binary to `public/`.
+
 ## Coordination
 
 See `docs/roadmap.md` for the product roadmap and release criteria. See `docs/coordination.md` for the current issue map, lofi.cafe inspiration notes, worker-thread merge order, and verification gates.

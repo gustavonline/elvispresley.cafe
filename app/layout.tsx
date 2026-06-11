@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import "@fontsource/bebas-neue/400.css";
 import "./globals.css";
-
-const tradeGothic = localFont({
-  src: "../public/fonts/Trade-Gothic-Next-LT-Pro-Cn.ttf",
-  variable: "--font-trade-gothic",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://elvispresley.cafe"),
@@ -53,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={tradeGothic.variable}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

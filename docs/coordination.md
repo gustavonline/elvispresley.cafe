@@ -40,7 +40,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #14: Automated test and QA harness. Closed in baseline.
 - #15: PWA install and local preferences. Closed in baseline.
 - #16: Original video/source link. Closed in baseline.
-- #17: Confirm or replace bundled display font.
+- #17: Replaced bundled display font with `@fontsource/bebas-neue` (`OFL-1.1`).
 - #18: Create visual scene pack with AI image or loop variants.
 - #19: Add station catalog drawer and station selection flow.
 - #20: Add station health fallback and auto-skip behavior.
@@ -61,7 +61,7 @@ Worker setup should start from committed `main`, not from an uncommitted working
 ## Suggested Merge Order
 
 1. Keep coordinator baseline green.
-2. Merge font licensing/replacement (#17) early because it removes redistribution risk and should not conflict heavily.
+2. Font licensing/replacement (#17) is merged in main and removes the redistribution risk.
 3. Merge accessibility (#13) before player-heavy work if it changes focus/modal behavior in `components/elvis-cafe.tsx`.
 4. Merge YouTube integration (#4) once player tests are green.
 5. Merge visual scene pack (#18) after checking asset size and screenshot framing.
