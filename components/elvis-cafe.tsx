@@ -19,7 +19,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
 import { getStationSourceUrl, getStationStatus, stations, type StationSource, type VisualMode } from "@/lib/stations";
 import {
@@ -37,7 +37,41 @@ import {
 const listenerSeed = 37;
 const timerDefaultSeconds = 25 * 60;
 const visualModes: VisualMode[] = ["stage", "neon", "dim"];
+const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
 let youtubeApiPromise: Promise<YouTubeApi> | undefined;
+
+function isEditableTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  const tagName = target.tagName;
+  return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT" || target.isContentEditable;
+}
+
+function isInteractiveTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return Boolean(target.closest("a[href], button, input, textarea, select, summary, [role='button'], [role='checkbox'], [role='slider']"));
+}
+
+function shouldStartFromKey(event: KeyboardEvent) {
+  if (event.altKey || event.ctrlKey || event.metaKey || nonStarterKeys.has(event.key)) {
+    return false;
+  }
+
+  return true;
+}
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])",
+    ),
+  ).filter((element) => !element.hasAttribute("aria-hidden"));
+}
 
 export function ElvisCafe() {
   const [isStarted, setIsStarted] = useState(false);
@@ -54,6 +88,10 @@ export function ElvisCafe() {
   const [visualModeOverride, setVisualModeOverride] = useState<VisualMode | undefined>(defaultPreferences.visualMode);
   const [shareStatus, setShareStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
+  const aboutButtonRef = useRef<HTMLButtonElement>(null);
+  const timerButtonRef = useRef<HTMLButtonElement>(null);
+  const timerPanelId = useId();
+  const aboutModalId = useId();
 
   const activeStation = stations[stationIndex];
   const effectiveVisualMode = visualModeOverride ?? activeStation.visualMode;
@@ -173,21 +211,27 @@ export function ElvisCafe() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const isTyping = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable;
-
       if (event.key === "Escape") {
-        setIsAboutOpen(false);
-        setIsTimerOpen(false);
+        if (isAboutOpen || isTimerOpen) {
+          event.preventDefault();
+          setIsAboutOpen(false);
+          setIsTimerOpen(false);
+        }
         return;
       }
 
-      if (disabledShortcuts || isTyping) {
+      if (isEditableTarget(event.target) || isInteractiveTarget(event.target) || isAboutOpen || isTimerOpen) {
         return;
       }
 
       if (!isStarted) {
-        start();
+        if (shouldStartFromKey(event)) {
+          start();
+        }
+        return;
+      }
+
+      if (disabledShortcuts) {
         return;
       }
 
@@ -231,7 +275,9 @@ export function ElvisCafe() {
     cycleVisualMode,
     disabledShortcuts,
     goToStation,
+    isAboutOpen,
     isStarted,
+    isTimerOpen,
     requestFullscreen,
     shareStation,
     sourceUrl,
@@ -272,38 +318,52 @@ export function ElvisCafe() {
         />
       ) : null}
 
-      <section className="relative z-10 flex min-h-dvh flex-col justify-between px-5 py-5 sm:px-8 sm:py-7">
+      <section className="relative z-10 flex min-h-dvh flex-col justify-between px-5 py-5 sm:px-8 sm:py-7" aria-hidden={isAboutOpen}>
         <header className="flex items-start justify-between gap-4">
           <div className="font-display text-sm uppercase tracking-normal text-shell drop-shadow-[0_0_8px_rgba(255,242,216,0.8)] sm:text-base">
             listening now {listeningNow}
           </div>
 
-          <nav
-            className={`flex max-w-[14rem] flex-wrap items-center justify-end gap-1 transition sm:max-w-none sm:gap-2 ${isStarted ? "opacity-100" : "pointer-events-none opacity-0"}`}
-          >
-            <IconButton label="Pomodoro Timer" onClick={() => setIsTimerOpen((current) => !current)} active={isTimerOpen}>
-              <Clock3 size={18} />
-            </IconButton>
-            <IconButton label="Share station" onClick={() => void shareStation()}>
-              <Share2 size={18} />
-            </IconButton>
-            <IconButton label="Low-power mode" onClick={() => setIsLowPower((current) => !current)} active={isLowPower}>
-              <Moon size={18} />
-            </IconButton>
-            <IconButton label="Change visual mode" onClick={cycleVisualMode}>
-              <Sparkles size={18} />
-            </IconButton>
-            <IconButton label="Fullscreen" onClick={requestFullscreen}>
-              <Maximize2 size={18} />
-            </IconButton>
-            <IconButton label="About" onClick={() => setIsAboutOpen(true)}>
-              <CircleHelp size={18} />
-            </IconButton>
-          </nav>
+          {isStarted ? (
+            <nav className="flex max-w-[14rem] flex-wrap items-center justify-end gap-1 transition sm:max-w-none sm:gap-2" aria-label="Cafe tools">
+              <IconButton
+                ref={timerButtonRef}
+                label="Pomodoro Timer"
+                onClick={() => setIsTimerOpen((current) => !current)}
+                active={isTimerOpen}
+                ariaControls={timerPanelId}
+                ariaExpanded={isTimerOpen}
+              >
+                <Clock3 size={18} />
+              </IconButton>
+              <IconButton label="Share station" onClick={() => void shareStation()}>
+                <Share2 size={18} />
+              </IconButton>
+              <IconButton label="Low-power mode" onClick={() => setIsLowPower((current) => !current)} active={isLowPower} ariaPressed={isLowPower}>
+                <Moon size={18} />
+              </IconButton>
+              <IconButton label="Change visual mode" onClick={cycleVisualMode}>
+                <Sparkles size={18} />
+              </IconButton>
+              <IconButton label="Fullscreen" onClick={requestFullscreen}>
+                <Maximize2 size={18} />
+              </IconButton>
+              <IconButton
+                ref={aboutButtonRef}
+                label="About"
+                onClick={() => setIsAboutOpen(true)}
+                ariaControls={aboutModalId}
+                ariaExpanded={isAboutOpen}
+              >
+                <CircleHelp size={18} />
+              </IconButton>
+            </nav>
+          ) : null}
         </header>
 
         {isTimerOpen ? (
           <TimerPanel
+            id={timerPanelId}
             seconds={timerSeconds}
             isRunning={isTimerRunning}
             onAddFive={() => setTimerSeconds((current) => current + 5 * 60)}
@@ -312,6 +372,8 @@ export function ElvisCafe() {
               setIsTimerRunning(false);
             }}
             onToggle={() => setIsTimerRunning((current) => !current)}
+            onClose={() => setIsTimerOpen(false)}
+            returnFocusRef={timerButtonRef}
           />
         ) : null}
 
@@ -361,9 +423,11 @@ export function ElvisCafe() {
 
       {isAboutOpen ? (
         <AboutModal
+          id={aboutModalId}
           disabledShortcuts={disabledShortcuts}
           onClose={() => setIsAboutOpen(false)}
           onToggleShortcuts={() => setDisabledShortcuts((current) => !current)}
+          returnFocusRef={aboutButtonRef}
         />
       ) : null}
     </main>
@@ -601,7 +665,7 @@ function PlayerDock({
         <IconButton label="Next station" onClick={onNext}>
           <SkipForward size={19} />
         </IconButton>
-        <IconButton label="Shuffle" onClick={onToggleShuffle} active={isShuffled}>
+        <IconButton label="Shuffle" onClick={onToggleShuffle} active={isShuffled} ariaPressed={isShuffled}>
           <Shuffle size={18} />
         </IconButton>
         <IconButton label={sourceUrl ? "Open original source" : "No source configured"} onClick={onOpenSource} disabled={!sourceUrl}>
@@ -609,7 +673,7 @@ function PlayerDock({
         </IconButton>
       </div>
 
-      <div className="min-w-0 text-center sm:text-left">
+      <div className="min-w-0 text-center sm:text-left" aria-live="polite" aria-atomic="true">
         <p className="font-display text-lg uppercase leading-tight text-gold sm:text-xl" data-testid="station-title">
           {stationTitle}
         </p>
@@ -642,13 +706,23 @@ type IconButtonProps = {
   active?: boolean;
   disabled?: boolean;
   emphasis?: boolean;
+  ariaControls?: string;
+  ariaExpanded?: boolean;
+  ariaPressed?: boolean;
 };
 
-function IconButton({ label, children, onClick, active, disabled, emphasis }: IconButtonProps) {
+const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+  { label, children, onClick, active, disabled, emphasis, ariaControls, ariaExpanded, ariaPressed },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       type="button"
       aria-label={label}
+      aria-controls={ariaControls}
+      aria-expanded={ariaExpanded}
+      aria-pressed={ariaPressed}
       title={label}
       disabled={disabled}
       onClick={onClick}
@@ -659,33 +733,63 @@ function IconButton({ label, children, onClick, active, disabled, emphasis }: Ic
       {children}
     </button>
   );
-}
+});
 
 function TimerPanel({
+  id,
   seconds,
   isRunning,
   onAddFive,
+  onClose,
   onReset,
   onToggle,
+  returnFocusRef,
 }: {
+  id: string;
   seconds: number;
   isRunning: boolean;
   onAddFive: () => void;
+  onClose: () => void;
   onReset: () => void;
   onToggle: () => void;
+  returnFocusRef: React.RefObject<HTMLButtonElement | null>;
 }) {
+  const startButtonRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
   const minutes = Math.floor(seconds / 60)
     .toString()
     .padStart(2, "0");
   const remainingSeconds = (seconds % 60).toString().padStart(2, "0");
 
+  useEffect(() => {
+    const trigger = returnFocusRef.current;
+    startButtonRef.current?.focus();
+
+    return () => {
+      trigger?.focus();
+    };
+  }, [returnFocusRef]);
+
   return (
-    <aside className="absolute right-5 top-20 z-20 w-[min(18rem,calc(100vw-2.5rem))] rounded-md border border-gold/50 bg-night/75 p-4 text-center shadow-neon backdrop-blur-md sm:right-8">
-      <p className="font-display text-4xl text-gold">
-        {minutes}:{remainingSeconds}
-      </p>
+    <aside
+      id={id}
+      className="absolute right-5 top-20 z-20 w-[min(18rem,calc(100vw-2.5rem))] rounded-md border border-gold/50 bg-night/75 p-4 text-center shadow-neon backdrop-blur-md sm:right-8"
+      role="region"
+      aria-labelledby={titleId}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p id={titleId} className="sr-only">
+          Pomodoro Timer
+        </p>
+        <p className="flex-1 font-display text-4xl text-gold" aria-live="polite">
+          {minutes}:{remainingSeconds}
+        </p>
+        <button className="rounded border border-shell/35 p-2 hover:border-gold" type="button" onClick={onClose} aria-label="Close timer">
+          <X size={14} />
+        </button>
+      </div>
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <button className="rounded border border-shell/35 px-3 py-2 text-sm uppercase hover:border-gold" type="button" onClick={onToggle}>
+        <button ref={startButtonRef} className="rounded border border-shell/35 px-3 py-2 text-sm uppercase hover:border-gold" type="button" onClick={onToggle}>
           {isRunning ? "Pause" : "Start"}
         </button>
         <button className="rounded border border-shell/35 px-3 py-2 text-sm uppercase hover:border-gold" type="button" onClick={onAddFive}>
@@ -700,14 +804,21 @@ function TimerPanel({
 }
 
 function AboutModal({
+  id,
   disabledShortcuts,
   onClose,
   onToggleShortcuts,
+  returnFocusRef,
 }: {
+  id: string;
   disabledShortcuts: boolean;
   onClose: () => void;
   onToggleShortcuts: () => void;
+  returnFocusRef: React.RefObject<HTMLButtonElement | null>;
 }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const descriptionId = useId();
   const shortcuts = [
     ["Space", "play / pause"],
     ["Arrows", "change station"],
@@ -719,18 +830,67 @@ function AboutModal({
     ["ESC", "close panels"],
   ];
 
+  useEffect(() => {
+    const trigger = returnFocusRef.current;
+    closeButtonRef.current?.focus();
+
+    return () => {
+      trigger?.focus();
+    };
+  }, [returnFocusRef]);
+
+  const onDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+
+    if (event.key !== "Tab" || !modalRef.current) {
+      return;
+    }
+
+    const focusable = getFocusableElements(modalRef.current);
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (!first || !last) {
+      return;
+    }
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-30 grid place-items-center bg-night/78 px-5 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div
+      id={id}
+      ref={modalRef}
+      className="fixed inset-0 z-30 grid place-items-center bg-night/78 px-5 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="about-title"
+      aria-describedby={descriptionId}
+      onKeyDown={onDialogKeyDown}
+    >
       <div className="w-full max-w-md rounded-md border border-gold/60 bg-night/92 p-5 text-shell shadow-neon">
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 id="about-title" className="font-display text-2xl uppercase text-gold">
             elvispresley.cafe
           </h2>
-          <IconButton label="Close" onClick={onClose}>
+          <IconButton ref={closeButtonRef} label="Close" onClick={onClose}>
             <X size={18} />
           </IconButton>
         </div>
-        <p className="text-sm leading-6 text-shell/86">
+        <p id={descriptionId} className="text-sm leading-6 text-shell/86">
           A small retro music room for Elvis-inspired stations. The demo uses local station data now; YouTube sources can be
           configured per station without bundling copyrighted audio.
         </p>
