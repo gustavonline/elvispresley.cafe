@@ -83,6 +83,40 @@ describe("ElvisCafe", () => {
     expect(screen.getByRole("button", { name: /about/i })).toHaveFocus();
   });
 
+  it("opens and closes the station catalog drawer with focus restored", () => {
+    render(<ElvisCafe />);
+
+    fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
+
+    const catalogButton = screen.getByRole("button", { name: /station catalog/i });
+    fireEvent.click(catalogButton);
+
+    const drawer = screen.getByRole("dialog", { name: /stations/i });
+    expect(drawer).toHaveAttribute("aria-modal", "true");
+    expect(screen.getByRole("button", { name: /close station catalog/i })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /sun studio after dark/i })).toHaveAttribute("aria-current", "true");
+
+    fireEvent.keyDown(drawer, { key: "ArrowRight" });
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+
+    fireEvent.keyDown(drawer, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog", { name: /stations/i })).not.toBeInTheDocument();
+    expect(catalogButton).toHaveFocus();
+  });
+
+  it("selects a station directly from the catalog drawer", () => {
+    render(<ElvisCafe />);
+
+    fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
+    fireEvent.click(screen.getByRole("button", { name: /station catalog/i }));
+    fireEvent.click(screen.getByRole("button", { name: /vegas midnight jukebox/i }));
+
+    expect(screen.queryByRole("dialog", { name: /stations/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Vegas Midnight Jukebox");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
+  });
+
   it("labels the timer panel and restores focus when it closes", () => {
     render(<ElvisCafe />);
 

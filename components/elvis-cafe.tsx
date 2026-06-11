@@ -6,6 +6,7 @@ import {
   CircleHelp,
   Clock3,
   ExternalLink,
+  ListMusic,
   Maximize2,
   Moon,
   Pause,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
-import { getStationSourceUrl, getStationStatus, stations, type StationSource, type VisualMode } from "@/lib/stations";
+import { getStationSourceUrl, getStationStatus, stations, type Station, type StationSource, type VisualMode } from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
@@ -80,6 +81,7 @@ export function ElvisCafe() {
   const [isShuffled, setIsShuffled] = useState(false);
   const [volume, setVolume] = useState(defaultPreferences.volume);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(timerDefaultSeconds);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -89,7 +91,9 @@ export function ElvisCafe() {
   const [shareStatus, setShareStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
+  const catalogButtonRef = useRef<HTMLButtonElement>(null);
   const timerButtonRef = useRef<HTMLButtonElement>(null);
+  const catalogDrawerId = useId();
   const timerPanelId = useId();
   const aboutModalId = useId();
 
@@ -138,6 +142,18 @@ export function ElvisCafe() {
     },
     [isShuffled],
   );
+
+  const selectStation = useCallback((stationId: string) => {
+    const nextStationIndex = stations.findIndex((station) => station.id === stationId);
+
+    if (nextStationIndex === -1) {
+      return;
+    }
+
+    setShareStatus(undefined);
+    setStationIndex(nextStationIndex);
+    setIsCatalogOpen(false);
+  }, []);
 
   const cycleVisualMode = useCallback(() => {
     setVisualModeOverride((current) => {
@@ -212,15 +228,16 @@ export function ElvisCafe() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        if (isAboutOpen || isTimerOpen) {
+        if (isAboutOpen || isCatalogOpen || isTimerOpen) {
           event.preventDefault();
           setIsAboutOpen(false);
+          setIsCatalogOpen(false);
           setIsTimerOpen(false);
         }
         return;
       }
 
-      if (isEditableTarget(event.target) || isInteractiveTarget(event.target) || isAboutOpen || isTimerOpen) {
+      if (isEditableTarget(event.target) || isInteractiveTarget(event.target) || isAboutOpen || isCatalogOpen || isTimerOpen) {
         return;
       }
 
@@ -276,6 +293,7 @@ export function ElvisCafe() {
     disabledShortcuts,
     goToStation,
     isAboutOpen,
+    isCatalogOpen,
     isStarted,
     isTimerOpen,
     requestFullscreen,
@@ -319,7 +337,7 @@ export function ElvisCafe() {
         />
       ) : null}
 
-      <section className="relative z-10 flex min-h-dvh flex-col justify-between px-5 py-5 sm:px-8 sm:py-7" aria-hidden={isAboutOpen}>
+      <section className="relative z-10 flex min-h-dvh flex-col justify-between px-5 py-5 sm:px-8 sm:py-7" aria-hidden={isAboutOpen || isCatalogOpen}>
         <header className="flex items-start justify-between gap-4">
           <div className="font-display text-sm uppercase tracking-normal text-shell drop-shadow-[0_0_8px_rgba(255,242,216,0.8)] sm:text-base">
             listening now {listeningNow}
@@ -339,6 +357,16 @@ export function ElvisCafe() {
               </IconButton>
               <IconButton label="Share station" onClick={() => void shareStation()}>
                 <Share2 size={18} />
+              </IconButton>
+              <IconButton
+                ref={catalogButtonRef}
+                label="Station catalog"
+                onClick={() => setIsCatalogOpen(true)}
+                active={isCatalogOpen}
+                ariaControls={catalogDrawerId}
+                ariaExpanded={isCatalogOpen}
+              >
+                <ListMusic size={18} />
               </IconButton>
               <IconButton label="Low-power mode" onClick={() => setIsLowPower((current) => !current)} active={isLowPower} ariaPressed={isLowPower}>
                 <Moon size={18} />
@@ -429,6 +457,17 @@ export function ElvisCafe() {
           onClose={() => setIsAboutOpen(false)}
           onToggleShortcuts={() => setDisabledShortcuts((current) => !current)}
           returnFocusRef={aboutButtonRef}
+        />
+      ) : null}
+
+      {isCatalogOpen ? (
+        <StationCatalogDrawer
+          id={catalogDrawerId}
+          activeStationId={activeStation.id}
+          stations={stations}
+          onClose={() => setIsCatalogOpen(false)}
+          onSelectStation={selectStation}
+          returnFocusRef={catalogButtonRef}
         />
       ) : null}
     </main>
@@ -801,6 +840,126 @@ function TimerPanel({
         </button>
       </div>
     </aside>
+  );
+}
+
+function StationCatalogDrawer({
+  id,
+  activeStationId,
+  stations,
+  onClose,
+  onSelectStation,
+  returnFocusRef,
+}: {
+  id: string;
+  activeStationId: string;
+  stations: Station[];
+  onClose: () => void;
+  onSelectStation: (stationId: string) => void;
+  returnFocusRef: React.RefObject<HTMLButtonElement | null>;
+}) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    const trigger = returnFocusRef.current;
+    closeButtonRef.current?.focus();
+
+    return () => {
+      trigger?.focus();
+    };
+  }, [returnFocusRef]);
+
+  const onDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+      return;
+    }
+
+    if (event.key !== "Tab" || !drawerRef.current) {
+      return;
+    }
+
+    const focusable = getFocusableElements(drawerRef.current);
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (!first || !last) {
+      return;
+    }
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
+  return (
+    <div
+      id={id}
+      ref={drawerRef}
+      className="fixed inset-0 z-30 flex justify-end bg-night/68 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      onKeyDown={onDialogKeyDown}
+    >
+      <div className="flex h-full w-full max-w-md flex-col border-l border-gold/45 bg-night/92 text-shell shadow-[0_0_44px_rgba(0,0,0,0.55)]">
+        <div className="flex items-start justify-between gap-4 border-b border-shell/15 p-5">
+          <div>
+            <h2 id={titleId} className="font-display text-2xl uppercase text-gold">
+              stations
+            </h2>
+          </div>
+          <IconButton ref={closeButtonRef} label="Close station catalog" onClick={onClose}>
+            <X size={18} />
+          </IconButton>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+          <ol className="grid gap-2">
+            {stations.map((station) => {
+              const isActive = station.id === activeStationId;
+              const sourceLabel = station.source.type === "demo" ? "demo" : `youtube / ${station.source.health}`;
+
+              return (
+                <li key={station.id}>
+                  <button
+                    type="button"
+                    onClick={() => onSelectStation(station.id)}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`w-full rounded-md border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-gold ${
+                      isActive
+                        ? "border-gold bg-gold/12 shadow-neon"
+                        : "border-shell/20 bg-night/48 hover:border-gold/75 hover:bg-shell/5"
+                    }`}
+                  >
+                    <span className="flex items-start justify-between gap-3">
+                      <span className="min-w-0">
+                        <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
+                        <span className="mt-1 block text-xs uppercase text-neon/85">{station.city}</span>
+                      </span>
+                      <span className="shrink-0 rounded border border-shell/25 px-2 py-1 text-[0.68rem] uppercase text-shell/78">{sourceLabel}</span>
+                    </span>
+                    <span className="mt-3 block text-sm leading-5 text-shell/84">{station.mood}</span>
+                    <span className="mt-2 block text-xs uppercase text-shell/56">{getStationStatus(station)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    </div>
   );
 }
 
