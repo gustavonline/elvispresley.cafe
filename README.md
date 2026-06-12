@@ -55,4 +55,4 @@ The display typeface is Bebas Neue via `@fontsource/bebas-neue`. It is distribut
 
 ## Coordination
 
-See `docs/roadmap.md` for the product roadmap and release criteria. See `docs/coordination.md` for the current issue map, lofi.cafe inspiration notes, worker-thread merge order, and verification gates.
+See `docs/roadmap.md` for the product roadmap and release criteria. See `docs/coordination.md` for the current issue map, lofi.cafe inspiration notes, worker-thread merge order, and verification gates. See `docs/deployment.md` for static deployment notes.
