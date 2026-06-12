@@ -46,6 +46,11 @@ input {
   transform-origin: center;
 }
 
+.station-scene-crossfade-out {
+  animation: station-scene-crossfade-out 900ms ease-out forwards;
+  transform-origin: center;
+}
+
 .player-dock button {
   background: transparent !important;
   border-color: transparent;
@@ -107,6 +112,10 @@ input {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+
+  .station-scene-crossfade-out {
+    display: none;
+  }
 }
 
 @keyframes static-drift {
@@ -130,5 +139,16 @@ input {
   }
   100% {
     transform: scale(1.04) translate3d(-0.2%, 0.8%, 0);
+  }
+}
+
+@keyframes station-scene-crossfade-out {
+  0% {
+    opacity: 0.82;
+    transform: scale(1.01);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
   }
 }

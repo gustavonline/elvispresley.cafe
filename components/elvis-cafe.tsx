@@ -111,6 +111,7 @@ export function ElvisCafe() {
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
   const catalogButtonRef = useRef<HTMLButtonElement>(null);
   const timerButtonRef = useRef<HTMLButtonElement>(null);
+  const sceneSrcRef = useRef(stations[0].imageSrc);
   const catalogDrawerId = useId();
   const autoFallbackAttemptedStationIdsRef = useRef<Set<string>>(new Set());
   const timerPanelId = useId();
@@ -120,6 +121,8 @@ export function ElvisCafe() {
   const sourceUrl = getStationSourceUrl(activeStation);
   const stationStatus = getStationStatus(activeStation);
   const playerStatus = shareStatus ?? stationFallbackStatus;
+  const [displayedSceneSrc, setDisplayedSceneSrc] = useState(activeStation.imageSrc);
+  const [previousSceneSrc, setPreviousSceneSrc] = useState<string | undefined>();
   const listeningNow = useMemo(() => listenerSeed + stationIndex * 6 + (isPlaying ? 11 : 0), [isPlaying, stationIndex]);
 
   const requestFullscreen = useCallback(() => {
@@ -217,6 +220,22 @@ export function ElvisCafe() {
   useEffect(() => {
     setYoutubePlayerStatus("idle");
   }, [activeStation.id]);
+
+  useEffect(() => {
+    if (activeStation.imageSrc === sceneSrcRef.current) {
+      return;
+    }
+
+    setPreviousSceneSrc(sceneSrcRef.current);
+    sceneSrcRef.current = activeStation.imageSrc;
+    setDisplayedSceneSrc(activeStation.imageSrc);
+
+    const timeoutId = window.setTimeout(() => {
+      setPreviousSceneSrc(undefined);
+    }, 900);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeStation.imageSrc]);
 
   useEffect(() => {
     if (youtubePlayerStatus === "playing" || youtubePlayerStatus === "ready") {
@@ -349,7 +368,7 @@ export function ElvisCafe() {
       data-testid="elvis-cafe"
     >
       <CafeImage
-        src={activeStation.imageSrc}
+        src={displayedSceneSrc}
         alt=""
         fill
         priority
@@ -357,10 +376,21 @@ export function ElvisCafe() {
         data-testid="station-scene"
         className={`object-cover transition duration-700 ${visualClass} ${isMotionEnabled ? "station-scene-motion" : ""}`}
       />
+      {previousSceneSrc ? (
+        <CafeImage
+          src={previousSceneSrc}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          aria-hidden="true"
+          className={`pointer-events-none z-[1] object-cover ${visualClass} station-scene-crossfade-out`}
+        />
+      ) : null}
 
-      <div className={`absolute inset-0 ${activeStation.theme.overlayClass} opacity-20`} />
-      <div className="crt-overlay absolute inset-0" />
-      <div className="noise-overlay absolute inset-0" />
+      <div className={`absolute inset-0 z-[2] ${activeStation.theme.overlayClass} opacity-20`} />
+      <div className="crt-overlay absolute inset-0 z-[3]" />
+      <div className="noise-overlay absolute inset-0 z-[4]" />
       {isStarted && activeStation.source.type === "youtube" ? (
         <YouTubePlayerHost
           isPlaying={isPlaying}

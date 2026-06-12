@@ -51,7 +51,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #23: Polish about/help overlay with credits, shortcuts, and source safety. Closed in main.
 - #24: Run lofi.cafe parity QA and close MVP gaps.
 - #25: Add ambient room SFX layer and mute control.
-- #26: Add cinematic scene transitions between stations.
+- #26: Add cinematic scene transitions between stations. Closed in main via crossfade scene overlay.
 - #27: Add station seed data for Elvis-safe public playlists.
 - #28: Add screenshot regression and lofi parity QA script. Closed in main via `npm run qa:visual`.
 - #29: Generate dedicated AI scene sets for each Elvis station. Closed in main.
