@@ -6,7 +6,7 @@ This file tracks the current direction for the MVP while multiple worktrees are 
 
 - Vite + React with TanStack Router, TypeScript, Tailwind CSS, ESLint.
 - Full-screen Elvis-inspired music room.
-- Generated original station scenes wired through `Station.imageSrc`.
+- Generated original station scenes wired through station scene lists with timed playback rotation.
 - Local player shell with minimal station metadata, station picker, play/pause, previous/next, shuffle, volume, source, fullscreen, and About modal.
 - Station catalog opens from the player dock as a jukebox modal with image cards, names, and direct selection.
 - Pomodoro, shortcuts/help, disable-shortcuts toggle, share/source controls, background motion toggle, persistent preferences, PWA manifest, CI, and a minimal test harness.
@@ -49,8 +49,8 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #21: Add mobile viewport and touch-control polish pass. Closed in main via safe-area shell padding and `npm run qa:visual` mobile screenshots.
 - #22: Prepare static demo deployment and environment setup docs. Closed in main via `docs/deployment.md`.
 - #23: Polish about/help overlay with credits, shortcuts, and source safety. Closed in main.
-- #24: Run lofi.cafe parity QA and close MVP gaps.
-- #25: Add ambient room SFX layer and mute control.
+- #24: Run lofi.cafe parity QA and close MVP gaps. Closed in main after visual QA, mobile QA, scene pack, rotation, motion, and static deployment pass.
+- #25: Add ambient room SFX layer and mute control. Deferred post-MVP until a legally safe ambience source or generated loop is selected.
 - #26: Add cinematic scene transitions between stations. Closed in main via crossfade scene overlay.
 - #27: Add station seed data for Elvis-safe public playlists.
 - #28: Add screenshot regression and lofi parity QA script. Closed in main via `npm run qa:visual`.
@@ -78,7 +78,7 @@ Worker setup should start from committed `main`, not from an uncommitted working
 5. Visual scene pack (#18) is merged in main. Preserve `Station.imageSrc` in later station work.
 6. Station drawer (#19) is merged in main. Preserve shared modal/focus helpers in later UI work.
 7. Station fallback/auto-skip (#20) is merged in main. Future player work should respect the bounded retry set.
-8. Run mobile polish (#21), deployment docs (#22), about/help polish (#23), ambience (#25), transitions (#26), playlist seeding (#27), screenshot regression (#28), and parity QA (#24) as final release passes.
+8. Remaining post-MVP enhancement: ambience (#25). Keep it muted by default and do not commit unclear or copyrighted audio assets.
 
 ## Verification Gates
 
