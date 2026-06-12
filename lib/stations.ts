@@ -28,6 +28,7 @@ export type Station = {
   city: string;
   visualMode: VisualMode;
   imageSrc: string;
+  sceneSrcs?: string[];
   theme: StationTheme;
   fallbackStationId?: string;
   source: StationSource;
@@ -87,6 +88,7 @@ export const stations: Station[] = [
     city: "RCA jukebox",
     visualMode: "neon",
     imageSrc: "/images/station-greatest-hits.png",
+    sceneSrcs: ["/images/station-greatest-hits.png", "/images/station-greatest-hits-alt.png"],
     theme: stationThemes.hits,
     fallbackStationId: "elvis-101",
     source: {
@@ -104,6 +106,7 @@ export const stations: Station[] = [
     city: "Christmas jukebox",
     visualMode: "dim",
     imageSrc: "/images/station-christmas-elvis.png",
+    sceneSrcs: ["/images/station-christmas-elvis.png", "/images/station-christmas-elvis-alt.png"],
     theme: stationThemes.christmas,
     fallbackStationId: "greatest-hits",
     source: {
@@ -121,6 +124,7 @@ export const stations: Station[] = [
     city: "Tour bus radio",
     visualMode: "stage",
     imageSrc: "/images/station-on-tour.png",
+    sceneSrcs: ["/images/station-on-tour.png", "/images/station-on-tour-alt.png"],
     theme: stationThemes.tour,
     fallbackStationId: "greatest-hits",
     source: {
@@ -138,6 +142,7 @@ export const stations: Station[] = [
     city: "Record shelf",
     visualMode: "stage",
     imageSrc: "/images/station-elvis-101.png",
+    sceneSrcs: ["/images/station-elvis-101.png", "/images/station-elvis-101-alt.png"],
     theme: stationThemes.deepCuts,
     fallbackStationId: "greatest-hits",
     source: {
@@ -155,6 +160,7 @@ export const stations: Station[] = [
     city: "Blue moon lounge",
     visualMode: "dim",
     imageSrc: "/images/station-love-songs.png",
+    sceneSrcs: ["/images/station-love-songs.png", "/images/station-love-songs-alt.png"],
     theme: stationThemes.love,
     fallbackStationId: "greatest-hits",
     source: {
@@ -177,6 +183,10 @@ export function getStationSourceUrl(station: Station) {
   }
 
   return getYouTubeSourceUrl(station.source);
+}
+
+export function getStationSceneSrcs(station: Station) {
+  return station.sceneSrcs?.length ? station.sceneSrcs : [station.imageSrc];
 }
 
 export function getStationStatus(station: Station) {

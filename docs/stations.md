@@ -9,6 +9,8 @@ Station data lives in `lib/stations.ts`.
 - `mood`: short description shown in the player.
 - `city`: location/mood anchor for the station.
 - `visualMode`: preferred visual treatment: `stage`, `neon`, or `dim`.
+- `imageSrc`: default scene and station catalog thumbnail.
+- `sceneSrcs`: ordered scene list used for calm rotation while music is playing.
 - `theme`: station-specific room treatment for label, glow, overlay, and player dock styling.
 - `fallbackStationId`: station to try when a configured source is unavailable.
 - `source.type`: `youtube`.
@@ -29,7 +31,7 @@ The catalog includes exactly these YouTube-backed jukebox stations:
 - `Elvis 101`: `hI_WiustW0` with playlist `PLsLrXjai8Jf4xP2KMf3SNdo_ABadRGGZS`.
 - `Love Songs`: `ttuVUynl5SU` with playlist `PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ`.
 
-Each station has a matching theme so the background scene, color overlay, and player dock adapt when the jukebox selection changes. This gives the demo actual music sources without bundling audio files in the repository.
+Each station has a matching theme and multiple scenes so the background, color treatment, and player dock adapt when the jukebox selection changes. The app rotates station scenes on a calm timed cadence during playback when motion mode is enabled, and resets to the station's first scene when a new station is selected. This gives the demo actual music sources without bundling audio files in the repository.
 
 The YouTube player is controlled through the IFrame API where embedding is permitted, so the app dock can send play, pause, and volume changes to the selected source.
 
@@ -49,6 +51,7 @@ Fallback is intentionally conservative. YouTube does not expose every failure mo
   city: "RCA jukebox",
   visualMode: "neon",
   imageSrc: "/images/station-greatest-hits.png",
+  sceneSrcs: ["/images/station-greatest-hits.png", "/images/station-greatest-hits-alt.png"],
   theme: stationThemes.hits,
   fallbackStationId: "elvis-101",
   source: {

@@ -25,7 +25,7 @@ The production app is static. `npm run build` writes `dist/`, and `npm run previ
 
 ## Music configuration
 
-Station data lives in `lib/stations.ts`. The jukebox includes five YouTube-backed Elvis stations: Greatest Hits, Christmas Elvis, On Tour, Elvis 101, and Love Songs. Each station carries its own scene, color treatment, and player glow so the room changes with the selected playlist.
+Station data lives in `lib/stations.ts`. The jukebox includes five YouTube-backed Elvis stations: Greatest Hits, Christmas Elvis, On Tour, Elvis 101, and Love Songs. Each station carries its own scene list, color treatment, and player glow so the room changes with the selected playlist. When playback and motion mode are active, the station rotates through its scenes on a calm timed cadence.
 
 Start the cafe and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the IFrame API reports a source as unavailable, private, invalid, or blocked from embedding, the app shows a concise fallback status and automatically skips to that station's `fallbackStationId`. If that fallback is missing or was already tried in the same auto-skip chain, the app moves to the next unattempted station instead. Auto-skip attempts are bounded to one pass through the station list so a broken set of YouTube sources cannot loop endlessly.
 
@@ -46,7 +46,7 @@ Real Elvis music is embedded through YouTube or should come from licensed audio 
 
 ## Visual assets
 
-The five station backgrounds in `public/images/station-*.png` are original generated project assets. They use the Elvis groovy palette as scene lighting and decor, while avoiding Elvis Presley likenesses, celebrity faces, logos, readable text, copied lofi.cafe assets, and copyrighted poster art.
+The station backgrounds in `public/images/station-*.png` are original generated project assets. They use the Elvis groovy palette as scene lighting and decor, while avoiding Elvis Presley likenesses, celebrity faces, logos, readable text, copied lofi.cafe assets, and copyrighted poster art.
 
 Prompt details and asset provenance live in `docs/visual-assets.md`.
 

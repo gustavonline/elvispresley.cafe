@@ -20,6 +20,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
 import {
   getStationFallbackPlan,
+  getStationSceneSrcs,
   getStationSourceUrl,
   getStationStatus,
   stations,
@@ -40,6 +41,7 @@ import {
 
 const listenerSeed = 37;
 const timerDefaultSeconds = 25 * 60;
+const sceneRotationMs = 45 * 1000;
 const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
 let youtubeApiPromise: Promise<YouTubeApi> | undefined;
 
@@ -121,6 +123,9 @@ export function ElvisCafe() {
   const sourceUrl = getStationSourceUrl(activeStation);
   const stationStatus = getStationStatus(activeStation);
   const playerStatus = shareStatus ?? stationFallbackStatus;
+  const [sceneVariantIndex, setSceneVariantIndex] = useState(0);
+  const activeSceneSrcs = useMemo(() => getStationSceneSrcs(activeStation), [activeStation]);
+  const activeSceneSrc = activeSceneSrcs[sceneVariantIndex % activeSceneSrcs.length] ?? activeStation.imageSrc;
   const [displayedSceneSrc, setDisplayedSceneSrc] = useState(activeStation.imageSrc);
   const [previousSceneSrc, setPreviousSceneSrc] = useState<string | undefined>();
   const listeningNow = useMemo(() => listenerSeed + stationIndex * 6 + (isPlaying ? 11 : 0), [isPlaying, stationIndex]);
@@ -218,24 +223,41 @@ export function ElvisCafe() {
   }, [disabledShortcuts, isMotionEnabled, volume]);
 
   useEffect(() => {
+    setSceneVariantIndex(0);
     setYoutubePlayerStatus("idle");
   }, [activeStation.id]);
 
   useEffect(() => {
-    if (activeStation.imageSrc === sceneSrcRef.current) {
+    if (activeSceneSrc === sceneSrcRef.current) {
       return;
     }
 
     setPreviousSceneSrc(sceneSrcRef.current);
-    sceneSrcRef.current = activeStation.imageSrc;
-    setDisplayedSceneSrc(activeStation.imageSrc);
+    sceneSrcRef.current = activeSceneSrc;
+    setDisplayedSceneSrc(activeSceneSrc);
 
     const timeoutId = window.setTimeout(() => {
       setPreviousSceneSrc(undefined);
     }, 900);
 
     return () => window.clearTimeout(timeoutId);
-  }, [activeStation.imageSrc]);
+  }, [activeSceneSrc]);
+
+  useEffect(() => {
+    if (!isStarted || !isPlaying || !isMotionEnabled || activeSceneSrcs.length < 2) {
+      return;
+    }
+
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setSceneVariantIndex((current) => (current + 1) % activeSceneSrcs.length);
+    }, sceneRotationMs);
+
+    return () => window.clearInterval(intervalId);
+  }, [activeSceneSrcs.length, isMotionEnabled, isPlaying, isStarted]);
 
   useEffect(() => {
     if (youtubePlayerStatus === "playing" || youtubePlayerStatus === "ready") {

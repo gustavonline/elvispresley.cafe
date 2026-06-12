@@ -17,10 +17,15 @@ Dedicated station assets were generated with the built-in image generation tool 
 Project copies:
 
 - `public/images/station-greatest-hits.png`: RCA-era jukebox room with gold records and velvet curtains.
+- `public/images/station-greatest-hits-alt.png`: alternate RCA-era record lounge angle for rotation.
 - `public/images/station-christmas-elvis.png`: warm winter holiday lounge with cream lamps, ornaments, and a small empty stage.
+- `public/images/station-christmas-elvis-alt.png`: alternate winter record lounge angle for rotation.
 - `public/images/station-on-tour.png`: vintage tour bus and concert-road scene.
+- `public/images/station-on-tour-alt.png`: alternate backstage tour-road scene for rotation.
 - `public/images/station-elvis-101.png`: curated record-shelf listening room.
+- `public/images/station-elvis-101-alt.png`: alternate record archive listening room for rotation.
 - `public/images/station-love-songs.png`: velvet slow-dance lounge with moonlit stage.
+- `public/images/station-love-songs-alt.png`: alternate romantic velvet lounge angle for rotation.
 
 Original generated PNGs are retained by Codex under `/Users/gustavanderson/.codex/generated_images/019eb2d3-346f-7ce3-8fb6-1a9b4c41fe95/`.
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getStationFallbackPlan, stations, type Station } from "@/lib/stations";
+import { getStationFallbackPlan, getStationSceneSrcs, stations, type Station } from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
@@ -24,6 +24,13 @@ describe("YouTube helpers", () => {
 
   it("limits the built-in jukebox to the five Elvis playlist stations", () => {
     expect(stations.map((station) => station.id)).toEqual(["greatest-hits", "christmas-elvis", "on-tour", "elvis-101", "love-songs"]);
+  });
+
+  it("ships multiple visual scenes for every Elvis station", () => {
+    for (const station of stations) {
+      expect(getStationSceneSrcs(station)).toHaveLength(2);
+      expect(getStationSceneSrcs(station)[0]).toBe(station.imageSrc);
+    }
   });
 
   it("builds a watch URL for a configured video", () => {
