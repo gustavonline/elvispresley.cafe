@@ -21,14 +21,14 @@ npm run build
 
 ## Music configuration
 
-Station data lives in `lib/stations.ts`. The demo uses safe placeholder station metadata, and can also expose a configured YouTube station through public environment variables:
+Station data lives in `lib/stations.ts`. By default, the app starts with an embedded official Elvis Presley music video playlist from YouTube/Vevo, followed by safe demo room stations. You can override the default YouTube source through public environment variables:
 
 ```bash
 NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID
 NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID=PLAYLIST_ID
 ```
 
-Set either variable for a single configured station. If both are set, the video starts inside the playlist context. The app loads the YouTube IFrame API after user start and wires the custom play/pause and volume controls to the hidden `youtube-nocookie.com` player when the source is available.
+Set either variable for a single configured station. If both are set, the video starts inside the playlist context. The app loads the YouTube IFrame API after user start and wires the custom play/pause and volume controls to the hidden `youtube-nocookie.com` player when the source is available. If neither variable is set, the default source is `https://www.youtube.com/playlist?list=PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu`.
 
 To verify locally:
 
@@ -40,7 +40,7 @@ Then open http://localhost:3000, start the cafe, and use the dock controls. Brow
 
 This fallback depends on errors surfaced by the YouTube IFrame API or API load failures. Some network stalls, regional restrictions, ad states, or normal video endings may not produce a reliable unavailable event, so they are reported through the player status line when possible instead of being guessed.
 
-Real Elvis music should be configured through YouTube or licensed audio sources rather than bundled into this repo.
+Real Elvis music is embedded through YouTube or should come from licensed audio sources rather than bundled into this repo.
 
 ## Features
 

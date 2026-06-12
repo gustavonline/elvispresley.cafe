@@ -26,13 +26,13 @@ describe("ElvisCafe", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-sun-studio.jpg");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
 
     fireEvent.click(screen.getByRole("button", { name: /next station/i }));
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Vegas Midnight Jukebox");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-sun-studio.jpg");
   });
 
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {
@@ -59,7 +59,7 @@ describe("ElvisCafe", () => {
     volume.focus();
     fireEvent.keyDown(volume, { key: "ArrowRight" });
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
   });
 
   it("manages About dialog semantics, focus trap, shortcut blocking, and Escape close", () => {
@@ -76,7 +76,7 @@ describe("ElvisCafe", () => {
     expect(closeButton).toHaveFocus();
 
     fireEvent.keyDown(window, { key: "ArrowRight" });
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
 
     disableShortcuts.focus();
     fireEvent.keyDown(dialog, { key: "Tab" });
@@ -99,10 +99,10 @@ describe("ElvisCafe", () => {
     const drawer = screen.getByRole("dialog", { name: /stations/i });
     expect(drawer).toHaveAttribute("aria-modal", "true");
     expect(screen.getByRole("button", { name: /close station catalog/i })).toHaveFocus();
-    expect(screen.getByRole("button", { name: /sun studio after dark/i })).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button", { name: /official elvis videos/i })).toHaveAttribute("aria-current", "true");
 
     fireEvent.keyDown(drawer, { key: "ArrowRight" });
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
 
     fireEvent.keyDown(drawer, { key: "Escape" });
 

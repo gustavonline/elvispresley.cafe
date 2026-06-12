@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getStationFallbackPlan, type Station } from "@/lib/stations";
+import { getStationFallbackPlan, stations, type Station } from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
@@ -11,6 +11,16 @@ import {
 } from "@/lib/youtube";
 
 describe("YouTube helpers", () => {
+  it("ships a playable YouTube station first by default", () => {
+    expect(stations[0]).toMatchObject({
+      id: "official-elvis-videos",
+      source: {
+        type: "youtube",
+        youtubePlaylistId: "PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu",
+      },
+    });
+  });
+
   it("builds a watch URL for a configured video", () => {
     expect(getYouTubeSourceUrl({ youtubeVideoId: "abc123" })).toBe("https://www.youtube.com/watch?v=abc123");
   });

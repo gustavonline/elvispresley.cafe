@@ -35,8 +35,9 @@ export type StationFallbackPlan = {
 
 const configuredYoutubeVideoId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID;
 const configuredYoutubePlaylistId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID;
+const defaultYoutubePlaylistId = "PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu";
 
-const configuredStations: Station[] =
+const youtubeStations: Station[] =
   configuredYoutubeVideoId || configuredYoutubePlaylistId
     ? [
         {
@@ -55,10 +56,26 @@ const configuredStations: Station[] =
           },
         },
       ]
-    : [];
+    : [
+        {
+          id: "official-elvis-videos",
+          title: "Official Elvis Videos",
+          mood: "official videos / rock and roll / golden era",
+          city: "Elvis Presley VEVO",
+          visualMode: "neon",
+          imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+          fallbackStationId: "sun-studio-after-dark",
+          source: {
+            type: "youtube",
+            health: "unverified",
+            youtubePlaylistId: defaultYoutubePlaylistId,
+            originalUrl: `https://www.youtube.com/playlist?list=${defaultYoutubePlaylistId}`,
+          },
+        },
+      ];
 
 export const stations: Station[] = [
-  ...configuredStations,
+  ...youtubeStations,
   {
     id: "sun-studio-after-dark",
     title: "Sun Studio After Dark",

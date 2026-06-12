@@ -20,6 +20,8 @@ Station data lives in `lib/stations.ts`.
 
 Do not add copyrighted audio files to the repository. Add YouTube IDs or licensed source URLs to station objects instead. The UI already shows source availability and can open a configured original source link.
 
+The default catalog starts with `Official Elvis Videos`, which embeds the public YouTube/Vevo playlist `PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu`. This gives the demo an actual music source without bundling audio files in the repository.
+
 For local configuration without editing UI code, set either of these public environment variables:
 
 ```bash
@@ -27,7 +29,7 @@ NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID
 NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID=PLAYLIST_ID
 ```
 
-When present, the app prepends a configured YouTube station and embeds it after the user starts the app.
+When present, the app replaces the default playlist station with your configured YouTube station and embeds it after the user starts the app.
 The YouTube player is controlled through the IFrame API where embedding is permitted, so the app dock can send play, pause, and volume changes to the configured source. If both variables are present, the configured video is loaded with the playlist ID attached.
 
 The player status line can show loading, ready, playing, paused, buffering, ended, or unavailable states for YouTube sources. Demo stations do not depend on the YouTube API.
