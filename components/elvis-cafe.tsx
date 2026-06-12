@@ -371,7 +371,7 @@ export function ElvisCafe() {
         />
       ) : null}
 
-      <section className="relative z-10 flex min-h-dvh flex-col justify-between px-5 py-5 sm:px-8 sm:py-7" aria-hidden={isAboutOpen || isCatalogOpen}>
+      <section className="cafe-shell relative z-10 flex min-h-dvh flex-col justify-between" aria-hidden={isAboutOpen || isCatalogOpen}>
         <header className="flex items-start justify-between gap-4">
           <div className="font-display text-sm uppercase tracking-normal text-shell drop-shadow-[0_0_8px_rgba(212,188,156,0.8)] sm:text-base">
             listening now {listeningNow}

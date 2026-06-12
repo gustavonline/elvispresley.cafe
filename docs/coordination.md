@@ -46,7 +46,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #18: Create visual scene pack with AI image or loop variants. Closed in main.
 - #19: Add station catalog drawer and station selection flow. Closed in main.
 - #20: Add station health fallback and auto-skip behavior. Closed in main.
-- #21: Add mobile viewport and touch-control polish pass.
+- #21: Add mobile viewport and touch-control polish pass. Closed in main via safe-area shell padding and `npm run qa:visual` mobile screenshots.
 - #22: Prepare static demo deployment and environment setup docs. Closed in main via `docs/deployment.md`.
 - #23: Polish about/help overlay with credits, shortcuts, and source safety. Closed in main.
 - #24: Run lofi.cafe parity QA and close MVP gaps.

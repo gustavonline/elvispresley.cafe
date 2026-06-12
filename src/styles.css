@@ -27,6 +27,20 @@ input {
   font: inherit;
 }
 
+.cafe-shell {
+  padding:
+    max(1.25rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
+}
+
+@media (min-width: 640px) {
+  .cafe-shell {
+    padding: 1.75rem 2rem;
+  }
+}
+
 .station-scene-motion {
   animation: station-scene-drift 28s ease-in-out infinite alternate;
   transform-origin: center;

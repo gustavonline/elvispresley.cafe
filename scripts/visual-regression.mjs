@@ -67,6 +67,14 @@ async function runViewport(browser, viewportName, viewport) {
   await page.getByRole("button", { name: /press any key to start/i }).click();
   await page.screenshot({ path: path.join(outputDir, `${viewportName}-player.png`), fullPage: true });
 
+  await page.getByRole("button", { name: /pomodoro timer/i }).click();
+  await page.screenshot({ path: path.join(outputDir, `${viewportName}-timer.png`), fullPage: true });
+  await page.getByRole("button", { name: /close timer/i }).click();
+
+  await page.getByRole("button", { name: /about/i }).click();
+  await page.screenshot({ path: path.join(outputDir, `${viewportName}-about.png`), fullPage: true });
+  await page.getByRole("dialog", { name: /elvispresley\.cafe/i }).getByRole("button", { name: /^close$/i }).click();
+
   await page.getByRole("button", { name: /station catalog/i }).click();
   await page.waitForLoadState("networkidle");
   await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0));
