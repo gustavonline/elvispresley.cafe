@@ -8,7 +8,7 @@ Issue #18 adds an original station scene pack. The app keeps the legacy generate
 - Avoid direct Elvis Presley likenesses, celebrity faces, logos, trademarks, and copied source images.
 - Store project assets under `public/images`.
 - Document prompts in README or this file.
-- Prefer still images plus CSS treatment before GIF/video backgrounds; it is simpler, smaller, and easier to keep responsive.
+- Prefer still images plus CSS motion treatment before GIF/video backgrounds; it is simpler, smaller, and easier to keep responsive.
 
 ## Scene Pack
 
@@ -75,4 +75,4 @@ Avoid: Elvis Presley face or body, celebrity likeness, logos, trademarks, readab
 - Still image plus CSS scanlines/noise is the default.
 - GIF backgrounds should be avoided unless short and heavily optimized.
 - Video backgrounds need a low-power fallback and should not be required for the core experience.
-- Low-power mode keeps using the same still image path and only reduces overlay motion/intensity.
+- Motion mode should keep a still-image fallback and respect reduced-motion preferences.

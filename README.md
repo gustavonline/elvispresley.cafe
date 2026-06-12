@@ -35,7 +35,7 @@ Real Elvis music is embedded through YouTube or should come from licensed audio 
 - Play/pause, previous/next, shuffle, volume, fullscreen.
 - Pomodoro panel with 25:00, start/pause, reset, and +5:00.
 - Keyboard shortcuts listed in the About panel.
-- Low-power mode and visual mode switching.
+- Background motion toggle for a subtle living-room effect.
 - Station sharing with Web Share API or clipboard fallback.
 - PWA manifest and persistent safe preferences.
 - CI workflow for install, lint, test, build, and audit.

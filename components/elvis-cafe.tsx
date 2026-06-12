@@ -3,12 +3,11 @@
 import Image from "next/image";
 import React from "react";
 import {
-  CircleHelp,
   Clock3,
   ExternalLink,
+  Heart,
   ListMusic,
   Maximize2,
-  Moon,
   Pause,
   Play,
   RotateCcw,
@@ -30,12 +29,10 @@ import {
   type Station,
   type StationSource,
   type StationTheme,
-  type VisualMode,
 } from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
-  getYouTubePlayerStatusLabel,
   getYouTubePlayerVars,
   mapYouTubePlayerState,
   normalizeYouTubeVolume,
@@ -46,7 +43,6 @@ import {
 
 const listenerSeed = 37;
 const timerDefaultSeconds = 25 * 60;
-const visualModes: VisualMode[] = ["stage", "neon", "dim"];
 const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
 let youtubeApiPromise: Promise<YouTubeApi> | undefined;
 
@@ -95,8 +91,7 @@ export function ElvisCafe() {
   const [timerSeconds, setTimerSeconds] = useState(timerDefaultSeconds);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [disabledShortcuts, setDisabledShortcuts] = useState(defaultPreferences.disabledShortcuts);
-  const [isLowPower, setIsLowPower] = useState(defaultPreferences.isLowPower);
-  const [visualModeOverride, setVisualModeOverride] = useState<VisualMode | undefined>(defaultPreferences.visualMode);
+  const [isMotionEnabled, setIsMotionEnabled] = useState(defaultPreferences.isMotionEnabled);
   const [shareStatus, setShareStatus] = useState<string | undefined>();
   const [stationFallbackStatus, setStationFallbackStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
@@ -109,12 +104,9 @@ export function ElvisCafe() {
   const aboutModalId = useId();
 
   const activeStation = stations[stationIndex];
-  const effectiveVisualMode = visualModeOverride ?? activeStation.visualMode;
   const sourceUrl = getStationSourceUrl(activeStation);
   const stationStatus = getStationStatus(activeStation);
-  const youtubeStatusLabel =
-    activeStation.source.type === "youtube" ? getYouTubePlayerStatusLabel(youtubePlayerStatus, activeStation.fallbackStationId) : undefined;
-  const playerStatus = shareStatus ?? stationFallbackStatus ?? youtubeStatusLabel ?? stationStatus;
+  const playerStatus = shareStatus ?? stationFallbackStatus;
   const listeningNow = useMemo(() => listenerSeed + stationIndex * 6 + (isPlaying ? 11 : 0), [isPlaying, stationIndex]);
 
   const requestFullscreen = useCallback(() => {
@@ -172,14 +164,6 @@ export function ElvisCafe() {
     setIsCatalogOpen(false);
   }, []);
 
-  const cycleVisualMode = useCallback(() => {
-    setVisualModeOverride((current) => {
-      const active = current ?? activeStation.visualMode;
-      const next = visualModes[(visualModes.indexOf(active) + 1) % visualModes.length];
-      return next;
-    });
-  }, [activeStation.visualMode]);
-
   const shareStation = useCallback(async () => {
     const shareUrl = typeof window !== "undefined" ? window.location.href : "https://elvispresley.cafe";
     const text = `Listening to ${activeStation.title} on elvispresley.cafe`;
@@ -205,19 +189,17 @@ export function ElvisCafe() {
   useEffect(() => {
     const preferences = loadPreferences();
     setDisabledShortcuts(preferences.disabledShortcuts);
-    setIsLowPower(preferences.isLowPower);
-    setVisualModeOverride(preferences.visualMode);
+    setIsMotionEnabled(preferences.isMotionEnabled);
     setVolume(preferences.volume);
   }, []);
 
   useEffect(() => {
     savePreferences({
       disabledShortcuts,
-      isLowPower,
-      visualMode: visualModeOverride,
+      isMotionEnabled,
       volume,
     });
-  }, [disabledShortcuts, isLowPower, visualModeOverride, volume]);
+  }, [disabledShortcuts, isMotionEnabled, volume]);
 
   useEffect(() => {
     setYoutubePlayerStatus("idle");
@@ -317,12 +299,8 @@ export function ElvisCafe() {
         requestFullscreen();
       }
 
-      if (event.key.toLowerCase() === "l") {
-        setIsLowPower((current) => !current);
-      }
-
-      if (event.key.toLowerCase() === "g") {
-        cycleVisualMode();
+      if (event.key.toLowerCase() === "m") {
+        setIsMotionEnabled((current) => !current);
       }
 
       if (event.key.toLowerCase() === "t") {
@@ -337,7 +315,6 @@ export function ElvisCafe() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
-    cycleVisualMode,
     disabledShortcuts,
     goToStation,
     isAboutOpen,
@@ -351,15 +328,11 @@ export function ElvisCafe() {
     togglePlay,
   ]);
 
-  const visualClass = {
-    stage: "brightness-[0.78] saturate-[1.08]",
-    neon: "brightness-[0.74] saturate-[1.35] hue-rotate-[8deg]",
-    dim: "brightness-[0.55] saturate-[0.82]",
-  }[effectiveVisualMode];
+  const visualClass = "brightness-[0.74] saturate-[1.14]";
 
   return (
     <main
-      className={`relative min-h-dvh overflow-hidden bg-night text-shell ${isLowPower ? "low-power" : ""}`}
+      className="relative min-h-dvh overflow-hidden bg-night text-shell"
       data-testid="elvis-cafe"
     >
       <Image
@@ -369,7 +342,7 @@ export function ElvisCafe() {
         priority
         sizes="100vw"
         data-testid="station-scene"
-        className={`object-cover transition duration-700 ${visualClass} ${isStarted && !isLowPower ? "scale-[1.03]" : ""}`}
+        className={`object-cover transition duration-700 ${visualClass} ${isMotionEnabled ? "station-scene-motion" : ""}`}
       />
 
       <div className={`absolute inset-0 ${activeStation.theme.overlayClass}`} />
@@ -406,20 +379,7 @@ export function ElvisCafe() {
               <IconButton label="Share station" onClick={() => void shareStation()}>
                 <Share2 size={18} />
               </IconButton>
-              <IconButton
-                ref={catalogButtonRef}
-                label="Station catalog"
-                onClick={() => setIsCatalogOpen(true)}
-                active={isCatalogOpen}
-                ariaControls={catalogDrawerId}
-                ariaExpanded={isCatalogOpen}
-              >
-                <ListMusic size={18} />
-              </IconButton>
-              <IconButton label="Low-power mode" onClick={() => setIsLowPower((current) => !current)} active={isLowPower} ariaPressed={isLowPower}>
-                <Moon size={18} />
-              </IconButton>
-              <IconButton label="Change visual mode" onClick={cycleVisualMode}>
+              <IconButton label="Motion" onClick={() => setIsMotionEnabled((current) => !current)} active={isMotionEnabled} ariaPressed={isMotionEnabled}>
                 <Sparkles size={18} />
               </IconButton>
               <IconButton label="Fullscreen" onClick={requestFullscreen}>
@@ -432,7 +392,7 @@ export function ElvisCafe() {
                 ariaControls={aboutModalId}
                 ariaExpanded={isAboutOpen}
               >
-                <CircleHelp size={18} />
+                <Heart size={18} />
               </IconButton>
             </nav>
           ) : null}
@@ -454,16 +414,7 @@ export function ElvisCafe() {
           />
         ) : null}
 
-        <div className="pointer-events-none mx-auto flex w-full max-w-4xl flex-1 items-center justify-center pb-20 pt-12 text-center">
-          <div className="select-none">
-            <p className={`font-display text-[clamp(5rem,18vw,13rem)] uppercase leading-none ${activeStation.theme.glowClass}`}>
-              Elvis
-            </p>
-            <p className="-mt-2 font-display text-[clamp(2rem,7vw,5.25rem)] uppercase leading-none text-neon drop-shadow-[0_0_18px_rgba(35,215,255,0.9)]">
-              cafe
-            </p>
-          </div>
-        </div>
+        <div className="pointer-events-none flex-1" />
 
         {!isStarted ? (
           <button
@@ -477,17 +428,18 @@ export function ElvisCafe() {
           <PlayerDock
             isPlaying={isPlaying}
             stationTitle={activeStation.title}
-            stationMood={activeStation.mood}
             stationCity={activeStation.city}
-            stationStatus={playerStatus}
+            stationStatus={playerStatus ?? stationStatus}
             stationTheme={activeStation.theme}
             isShuffled={isShuffled}
             sourceUrl={sourceUrl}
             volume={volume}
             shareStatus={shareStatus}
+            stationCatalogRef={catalogButtonRef}
             onTogglePlay={togglePlay}
             onPrevious={() => goToStation(-1)}
             onNext={() => goToStation(1)}
+            onOpenStationCatalog={() => setIsCatalogOpen(true)}
             onToggleShuffle={() => setIsShuffled((current) => !current)}
             onVolumeChange={setVolume}
             onOpenSource={() => {
@@ -710,7 +662,6 @@ function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }:
 type PlayerDockProps = {
   isPlaying: boolean;
   stationTitle: string;
-  stationMood: string;
   stationCity: string;
   stationStatus: string;
   stationTheme: StationTheme;
@@ -718,9 +669,11 @@ type PlayerDockProps = {
   sourceUrl?: string;
   volume: number;
   shareStatus?: string;
+  stationCatalogRef: React.RefObject<HTMLButtonElement | null>;
   onTogglePlay: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  onOpenStationCatalog: () => void;
   onToggleShuffle: () => void;
   onVolumeChange: (value: number) => void;
   onOpenSource: () => void;
@@ -729,7 +682,6 @@ type PlayerDockProps = {
 function PlayerDock({
   isPlaying,
   stationTitle,
-  stationMood,
   stationCity,
   stationStatus,
   stationTheme,
@@ -737,15 +689,17 @@ function PlayerDock({
   sourceUrl,
   volume,
   shareStatus,
+  stationCatalogRef,
   onTogglePlay,
   onPrevious,
   onNext,
+  onOpenStationCatalog,
   onToggleShuffle,
   onVolumeChange,
   onOpenSource,
 }: PlayerDockProps) {
   return (
-    <div className={`mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md border p-3 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
+    <div className={`mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md p-3 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
       <div className="flex items-center justify-center gap-2 sm:justify-start">
         <IconButton label="Previous station" onClick={onPrevious}>
           <SkipBack size={19} />
@@ -759,6 +713,13 @@ function PlayerDock({
         <IconButton label="Shuffle" onClick={onToggleShuffle} active={isShuffled} ariaPressed={isShuffled}>
           <Shuffle size={18} />
         </IconButton>
+        <IconButton
+          ref={stationCatalogRef}
+          label="Station catalog"
+          onClick={onOpenStationCatalog}
+        >
+          <ListMusic size={18} />
+        </IconButton>
         <IconButton label={sourceUrl ? "Open original source" : "No source configured"} onClick={onOpenSource} disabled={!sourceUrl}>
           <ExternalLink size={18} />
         </IconButton>
@@ -768,12 +729,16 @@ function PlayerDock({
         <p className="font-display text-lg uppercase leading-tight text-gold sm:text-xl" data-testid="station-title">
           {stationTitle}
         </p>
-        <p className="truncate text-sm text-shell/86">{stationMood}</p>
         <p className="text-xs uppercase text-neon/85">{stationCity}</p>
-        <p className="text-xs uppercase text-gold/80">{stationTheme.label}</p>
-        <p className="mt-1 text-xs uppercase text-shell/60" data-testid="station-status">
-          {shareStatus ?? stationStatus}
-        </p>
+        {shareStatus || stationStatus.startsWith("source unavailable") ? (
+          <p className="mt-1 text-xs uppercase text-shell/60" data-testid="station-status">
+            {shareStatus ?? stationStatus}
+          </p>
+        ) : (
+          <p className="sr-only" data-testid="station-status">
+            {stationStatus}
+          </p>
+        )}
       </div>
 
       <label className="flex min-h-10 items-center justify-center gap-2 text-shell/90 sm:justify-end">
@@ -983,7 +948,6 @@ function StationCatalogModal({
           <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {stations.map((station) => {
               const isActive = station.id === activeStationId;
-              const sourceLabel = station.source.type === "demo" ? "demo" : "youtube";
 
               return (
                 <li key={station.id}>
@@ -1007,15 +971,10 @@ function StationCatalogModal({
                         className="object-cover brightness-[0.78] saturate-[1.15] transition duration-300 group-hover:scale-[1.04]"
                       />
                       <span className={`absolute inset-0 ${station.theme.overlayClass} opacity-70`} />
-                      <span className="absolute right-2 top-2 rounded border border-shell/40 bg-night/65 px-2 py-1 text-[0.65rem] uppercase text-shell/85">
-                        {sourceLabel}
-                      </span>
                     </span>
                     <span className="block p-3">
                       <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
                       <span className="mt-1 block text-xs uppercase text-neon/85">{station.city}</span>
-                      <span className="mt-2 block text-sm leading-5 text-shell/84">{station.mood}</span>
-                      <span className="mt-2 block text-xs uppercase text-gold/70">{station.theme.label}</span>
                     </span>
                   </button>
                 </li>
@@ -1047,9 +1006,8 @@ function AboutModal({
   const shortcuts = [
     ["Space", "play / pause"],
     ["Arrows", "change station"],
+    ["M", "background motion"],
     ["T", "share station"],
-    ["G", "change visual mode"],
-    ["L", "low-power mode"],
     ["V", "open original source"],
     ["F", "fullscreen"],
     ["ESC", "close panels"],
@@ -1099,14 +1057,14 @@ function AboutModal({
     <div
       id={id}
       ref={modalRef}
-      className="fixed inset-0 z-30 grid place-items-center bg-night/78 px-5 backdrop-blur-sm"
+      className="fixed inset-0 z-30 grid place-items-center bg-night/88 px-5 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="about-title"
       aria-describedby={descriptionId}
       onKeyDown={onDialogKeyDown}
     >
-      <div className="w-full max-w-md rounded-md border border-gold/60 bg-night/92 p-5 text-shell shadow-neon">
+      <div className="w-full max-w-md rounded-md border border-gold/70 bg-night p-5 text-shell shadow-[0_0_42px_rgba(0,0,0,0.78)]">
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 id="about-title" className="font-display text-2xl uppercase text-gold">
             elvispresley.cafe
@@ -1116,8 +1074,8 @@ function AboutModal({
           </IconButton>
         </div>
         <p id={descriptionId} className="text-sm leading-6 text-shell/86">
-          A small retro music room for Elvis-inspired stations. The demo uses local station data now; YouTube sources can be
-          configured per station without bundling copyrighted audio.
+          A small retro music room for Elvis-inspired stations. The room uses curated playlist stations and original visual scenes
+          without bundling copyrighted audio.
         </p>
         <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
           {shortcuts.map(([key, label]) => (

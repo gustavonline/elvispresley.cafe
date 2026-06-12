@@ -10,7 +10,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 - Player controls are clear, keyboard reachable, and stable on desktop and mobile.
 - Stations are configured as typed data, not hard-coded into UI components.
 - YouTube playback uses the typed Elvis playlist stations; unavailable sources show status and auto-skip to a bounded fallback path when the IFrame API reports a clear source failure.
-- Utility features from lofi.cafe are adapted where useful: Pomodoro, shortcuts/help, low-power mode, share/source actions.
+- Utility features from lofi.cafe are adapted where useful: Pomodoro, shortcuts/help, motion toggle, share/source actions.
 - The app has basic CI, tests, metadata, PWA manifest, and documentation.
 
 ## Priority Tracks
@@ -33,9 +33,9 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
    - Completed: Persistent preferences for safe local settings.
 
 4. **Visual Layer**
-   - Completed: Low-power mode.
-   - Completed: Visual mode variations.
-   - Additional AI-generated scene variants.
+   - Completed: Background motion toggle.
+   - Additional AI-generated scene variants per station.
+   - Multiple images per station with rotation during playback.
    - Mobile/desktop polish.
 
 5. **Shipping Layer**

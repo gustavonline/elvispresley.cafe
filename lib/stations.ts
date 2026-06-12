@@ -185,14 +185,14 @@ export function getStationStatus(station: Station) {
   }
 
   if (station.source.health === "unavailable") {
-    return "source unavailable - skipping recommended";
+    return "source unavailable";
   }
 
   if (station.source.health === "unverified") {
-    return "YouTube source configured - unverified";
+    return "ready";
   }
 
-  return "YouTube source ready";
+  return "ready";
 }
 
 export function getStationFallbackPlan(allStations: Station[], currentIndex: number, attemptedStationIds: ReadonlySet<string>): StationFallbackPlan | undefined {

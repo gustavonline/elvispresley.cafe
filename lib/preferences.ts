@@ -1,13 +1,12 @@
 export type ElvisCafePreferences = {
   disabledShortcuts: boolean;
-  isLowPower: boolean;
-  visualMode?: "stage" | "neon" | "dim";
+  isMotionEnabled: boolean;
   volume: number;
 };
 
 export const defaultPreferences: ElvisCafePreferences = {
   disabledShortcuts: false,
-  isLowPower: false,
+  isMotionEnabled: true,
   volume: 68,
 };
 
@@ -27,8 +26,7 @@ export function loadPreferences(): ElvisCafePreferences {
     const parsed = JSON.parse(raw) as Partial<ElvisCafePreferences>;
     return {
       disabledShortcuts: Boolean(parsed.disabledShortcuts),
-      isLowPower: Boolean(parsed.isLowPower),
-      visualMode: parsed.visualMode,
+      isMotionEnabled: parsed.isMotionEnabled ?? true,
       volume: typeof parsed.volume === "number" ? Math.min(100, Math.max(0, parsed.volume)) : defaultPreferences.volume,
     };
   } catch {

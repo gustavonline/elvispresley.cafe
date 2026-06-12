@@ -7,9 +7,9 @@ This file tracks the current direction for the MVP while multiple worktrees are 
 - Next.js App Router with TypeScript, Tailwind CSS, ESLint.
 - Full-screen Elvis-inspired music room.
 - Generated original station scenes wired through `Station.imageSrc`.
-- Local player shell with station metadata, play/pause, previous/next, shuffle, volume, fullscreen, and About modal.
-- Station catalog opens as a jukebox modal with image cards, names, mood, source/status, and direct selection.
-- Pomodoro, shortcuts/help, disable-shortcuts toggle, share/source controls, low-power mode, visual modes, persistent preferences, PWA manifest, CI, and a minimal test harness.
+- Local player shell with minimal station metadata, station picker, play/pause, previous/next, shuffle, volume, source, fullscreen, and About modal.
+- Station catalog opens from the player dock as a jukebox modal with image cards, names, and direct selection.
+- Pomodoro, shortcuts/help, disable-shortcuts toggle, share/source controls, background motion toggle, persistent preferences, PWA manifest, CI, and a minimal test harness.
 - YouTube IFrame API support exists through typed Elvis playlist stations. Clear unavailable/private/embed-blocked source failures now auto-skip through a bounded fallback path.
 
 ## lofi.cafe Inspiration To Adapt
@@ -23,7 +23,7 @@ Reference behavior observed on 2026-06-10:
 - Pomodoro panel with `25:00`, `Start`, and `+5:00`.
 - Station catalog control opens a compact jukebox picker for direct station selection without changing previous/next/shuffle behavior.
 - About/help panel lists shortcuts and includes a disable-shortcuts checkbox.
-- Shortcuts include station changes, play/pause, tweet/share, visual changes, original video, low-power mode, and Escape close.
+- Shortcuts include station changes, play/pause, share, background motion, original source, fullscreen, and Escape close.
 
 Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 
@@ -54,6 +54,9 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #26: Add cinematic scene transitions between stations.
 - #27: Add station seed data for Elvis-safe public playlists.
 - #28: Add screenshot regression and lofi parity QA script.
+- #29: Generate dedicated AI scene sets for each Elvis station.
+- #30: Rotate multiple station images during playback and song changes.
+- #31: Explore lightweight animated scene loops for optional motion mode.
 
 ## Active Worker Threads
 
