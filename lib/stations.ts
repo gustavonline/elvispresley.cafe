@@ -44,37 +44,37 @@ const stationThemes = {
   christmas: {
     label: "holiday lights",
     glowClass: "text-shell drop-shadow-[0_0_24px_rgba(212,188,156,0.88)]",
-    overlayClass: "bg-[radial-gradient(circle_at_18%_24%,rgba(212,188,156,0.2),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(101,84,20,0.18),transparent_31%),linear-gradient(180deg,rgba(170,76,100,0.08),rgba(94,48,60,0.8))]",
+    overlayClass: "bg-[radial-gradient(circle_at_18%_24%,rgba(212,188,156,0.2),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(101,84,20,0.18),transparent_31%),linear-gradient(180deg,rgba(170,76,100,0.08),rgba(19,13,16,0.8))]",
     dockClass: "border-shell/45 bg-night/84 shadow-[0_0_34px_rgba(212,188,156,0.24)]",
   },
   hits: {
     label: "gold records",
     glowClass: "text-gold drop-shadow-[0_0_24px_rgba(244,196,26,0.82)]",
-    overlayClass: "bg-[radial-gradient(circle_at_50%_34%,rgba(244,196,26,0.16),transparent_34%),linear-gradient(180deg,rgba(94,48,60,0.05),rgba(94,48,60,0.76))]",
+    overlayClass: "bg-[radial-gradient(circle_at_50%_34%,rgba(244,196,26,0.16),transparent_34%),linear-gradient(180deg,rgba(19,13,16,0.05),rgba(19,13,16,0.76))]",
     dockClass: "border-gold/50 bg-night/86 shadow-[0_0_36px_rgba(244,196,26,0.22)]",
   },
   tour: {
     label: "stage tour",
     glowClass: "text-neon drop-shadow-[0_0_24px_rgba(244,100,138,0.82)]",
-    overlayClass: "bg-[radial-gradient(circle_at_28%_30%,rgba(244,100,138,0.18),transparent_30%),radial-gradient(circle_at_68%_24%,rgba(244,196,26,0.14),transparent_28%),linear-gradient(180deg,rgba(94,48,60,0.08),rgba(94,48,60,0.78))]",
+    overlayClass: "bg-[radial-gradient(circle_at_28%_30%,rgba(244,100,138,0.18),transparent_30%),radial-gradient(circle_at_68%_24%,rgba(244,196,26,0.14),transparent_28%),linear-gradient(180deg,rgba(19,13,16,0.08),rgba(19,13,16,0.78))]",
     dockClass: "border-neon/45 bg-night/86 shadow-neon",
   },
   deepCuts: {
     label: "deep cuts",
     glowClass: "text-shell drop-shadow-[0_0_20px_rgba(170,76,100,0.72)]",
-    overlayClass: "bg-[radial-gradient(circle_at_52%_38%,rgba(170,76,100,0.2),transparent_36%),linear-gradient(180deg,rgba(94,48,60,0.12),rgba(94,48,60,0.84))]",
+    overlayClass: "bg-[radial-gradient(circle_at_52%_38%,rgba(170,76,100,0.2),transparent_36%),linear-gradient(180deg,rgba(19,13,16,0.12),rgba(19,13,16,0.84))]",
     dockClass: "border-velvet/60 bg-night/86 shadow-[0_0_34px_rgba(170,76,100,0.34)]",
   },
   love: {
     label: "velvet love songs",
     glowClass: "text-gold drop-shadow-[0_0_26px_rgba(244,100,138,0.74)]",
-    overlayClass: "bg-[radial-gradient(circle_at_62%_32%,rgba(244,100,138,0.18),transparent_32%),radial-gradient(circle_at_28%_26%,rgba(244,196,26,0.12),transparent_28%),linear-gradient(180deg,rgba(94,48,60,0.06),rgba(94,48,60,0.78))]",
+    overlayClass: "bg-[radial-gradient(circle_at_62%_32%,rgba(244,100,138,0.18),transparent_32%),radial-gradient(circle_at_28%_26%,rgba(244,196,26,0.12),transparent_28%),linear-gradient(180deg,rgba(19,13,16,0.06),rgba(19,13,16,0.78))]",
     dockClass: "border-gold/45 bg-night/84 shadow-[0_0_36px_rgba(244,100,138,0.22)]",
   },
   demo: {
     label: "demo room",
     glowClass: "text-gold drop-shadow-[0_0_22px_rgba(244,196,26,0.7)]",
-    overlayClass: "bg-[radial-gradient(circle_at_50%_42%,rgba(212,188,156,0.08),transparent_34%),linear-gradient(180deg,rgba(94,48,60,0.08),rgba(94,48,60,0.76))]",
+    overlayClass: "bg-[radial-gradient(circle_at_50%_42%,rgba(212,188,156,0.08),transparent_34%),linear-gradient(180deg,rgba(19,13,16,0.08),rgba(19,13,16,0.76))]",
     dockClass: "border-shell/35 bg-night/86 shadow-[0_0_36px_rgba(0,0,0,0.45)]",
   },
 } satisfies Record<string, StationTheme>;

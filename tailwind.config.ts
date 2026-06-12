@@ -9,7 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        night: "#5e303c",
+        night: "#130d10",
+        plum: "#5e303c",
         velvet: "#aa4c64",
         neon: "#f4648a",
         gold: "#f4c41a",

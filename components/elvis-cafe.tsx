@@ -345,7 +345,7 @@ export function ElvisCafe() {
         className={`object-cover transition duration-700 ${visualClass} ${isMotionEnabled ? "station-scene-motion" : ""}`}
       />
 
-      <div className={`absolute inset-0 ${activeStation.theme.overlayClass} opacity-55`} />
+      <div className={`absolute inset-0 ${activeStation.theme.overlayClass} opacity-30`} />
       <div className="crt-overlay absolute inset-0" />
       <div className="noise-overlay absolute inset-0" />
       {isStarted && activeStation.source.type === "youtube" ? (
@@ -931,13 +931,13 @@ function StationCatalogModal({
     <div
       id={id}
       ref={modalRef}
-      className="fixed inset-0 z-30 grid place-items-start bg-[rgba(48,24,31,0.92)] px-4 py-8 backdrop-blur-md sm:px-8"
+      className="fixed inset-0 z-30 grid place-items-start bg-[rgba(19,13,16,0.92)] px-4 py-8 backdrop-blur-md sm:px-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       onKeyDown={onDialogKeyDown}
     >
-      <div className="mx-auto w-full max-w-6xl rounded-md bg-[rgba(48,24,31,0.96)] text-shell shadow-[0_0_70px_rgba(0,0,0,0.92)]">
+      <div className="mx-auto w-full max-w-6xl rounded-md bg-[rgba(19,13,16,0.96)] text-shell shadow-[0_0_70px_rgba(0,0,0,0.92)]">
         <div className="flex items-start justify-between gap-4 p-4 sm:p-5">
           <div>
             <h2 id={titleId} className="font-display text-2xl uppercase text-gold">
