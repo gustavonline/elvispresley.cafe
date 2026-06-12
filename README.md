@@ -21,14 +21,14 @@ npm run build
 
 ## Music configuration
 
-Station data lives in `lib/stations.ts`. By default, the app starts with an embedded official Elvis Presley music video playlist from YouTube/Vevo, followed by safe demo room stations. You can override the default YouTube source through public environment variables:
+Station data lives in `lib/stations.ts`. By default, the jukebox includes five YouTube-backed Elvis stations: Christmas Elvis, Greatest Hits, On Tour, Elvis 101, and Love Songs. Each station carries its own scene, color treatment, and player glow so the room changes with the selected playlist. You can override the default YouTube source through public environment variables:
 
 ```bash
 NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID
 NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID=PLAYLIST_ID
 ```
 
-Set either variable for a single configured station. If both are set, the video starts inside the playlist context. The app loads the YouTube IFrame API after user start and wires the custom play/pause and volume controls to the hidden `youtube-nocookie.com` player when the source is available. If neither variable is set, the default source is `https://www.youtube.com/playlist?list=PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu`.
+Set either variable for a single configured station. If both are set, the video starts inside the playlist context. The app loads the YouTube IFrame API after user start and wires the custom play/pause and volume controls to the hidden `youtube-nocookie.com` player when the source is available. If neither variable is set, the built-in jukebox stations use their configured playlist/video pairs.
 
 To verify locally:
 

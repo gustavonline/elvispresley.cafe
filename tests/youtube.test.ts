@@ -13,10 +13,11 @@ import {
 describe("YouTube helpers", () => {
   it("ships a playable YouTube station first by default", () => {
     expect(stations[0]).toMatchObject({
-      id: "official-elvis-videos",
+      id: "christmas-elvis",
       source: {
         type: "youtube",
-        youtubePlaylistId: "PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu",
+        youtubeVideoId: "WwdI-gbm5kE",
+        youtubePlaylistId: "PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
       },
     });
   });
@@ -87,6 +88,7 @@ const demoStation = (id: string, fallbackStationId?: string): Station => ({
   visualMode: "stage",
   fallbackStationId,
   imageSrc: "/images/elvis-cafe-stage.png",
+  theme: stations[0].theme,
   source: {
     type: "demo",
     health: "ready",

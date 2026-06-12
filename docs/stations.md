@@ -9,6 +9,7 @@ Station data lives in `lib/stations.ts`.
 - `mood`: short description shown in the player.
 - `city`: location/mood anchor for the station.
 - `visualMode`: preferred visual treatment: `stage`, `neon`, or `dim`.
+- `theme`: station-specific room treatment for label, glow, overlay, and player dock styling.
 - `fallbackStationId`: station to try when a configured source is unavailable.
 - `source.type`: `demo` or `youtube`.
 - `source.youtubeVideoId`: optional YouTube video ID.
@@ -20,7 +21,15 @@ Station data lives in `lib/stations.ts`.
 
 Do not add copyrighted audio files to the repository. Add YouTube IDs or licensed source URLs to station objects instead. The UI already shows source availability and can open a configured original source link.
 
-The default catalog starts with `Official Elvis Videos`, which embeds the public YouTube/Vevo playlist `PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu`. This gives the demo an actual music source without bundling audio files in the repository.
+The default catalog includes these YouTube-backed jukebox stations:
+
+- `Christmas Elvis`: `WwdI-gbm5kE` with playlist `PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m`.
+- `Greatest Hits`: `WrMGGouem3c` with playlist `PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp`.
+- `On Tour`: `tR2HOfnPsaI` with playlist `PLsLrXjai8Jf4pGeXmvzmvxjiCA_ax404J`.
+- `Elvis 101`: `hI_WiustW0` with playlist `PLsLrXjai8Jf4xP2KMf3SNdo_ABadRGGZS`.
+- `Love Songs`: `ttuVUynl5SU` with playlist `PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ`.
+
+Each station has a matching theme so the background scene, color overlay, and player dock adapt when the jukebox selection changes. This gives the demo actual music sources without bundling audio files in the repository.
 
 For local configuration without editing UI code, set either of these public environment variables:
 
@@ -47,6 +56,8 @@ Fallback is intentionally conservative. YouTube does not expose every failure mo
   mood: "gold records / soft stage lights",
   city: "Memphis, Tennessee",
   visualMode: "stage",
+  imageSrc: "/images/elvis-cafe-sun-studio.jpg",
+  theme: stationThemes.demo,
   fallbackStationId: "vegas-midnight-jukebox",
   source: {
     type: "youtube",

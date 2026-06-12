@@ -26,13 +26,13 @@ describe("ElvisCafe", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-graceland-lounge.jpg");
 
     fireEvent.click(screen.getByRole("button", { name: /next station/i }));
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-sun-studio.jpg");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
   });
 
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {
@@ -59,7 +59,7 @@ describe("ElvisCafe", () => {
     volume.focus();
     fireEvent.keyDown(volume, { key: "ArrowRight" });
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
   });
 
   it("manages About dialog semantics, focus trap, shortcut blocking, and Escape close", () => {
@@ -76,7 +76,7 @@ describe("ElvisCafe", () => {
     expect(closeButton).toHaveFocus();
 
     fireEvent.keyDown(window, { key: "ArrowRight" });
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
 
     disableShortcuts.focus();
     fireEvent.keyDown(dialog, { key: "Tab" });
@@ -96,17 +96,17 @@ describe("ElvisCafe", () => {
     const catalogButton = screen.getByRole("button", { name: /station catalog/i });
     fireEvent.click(catalogButton);
 
-    const drawer = screen.getByRole("dialog", { name: /stations/i });
+    const drawer = screen.getByRole("dialog", { name: /jukebox/i });
     expect(drawer).toHaveAttribute("aria-modal", "true");
     expect(screen.getByRole("button", { name: /close station catalog/i })).toHaveFocus();
-    expect(screen.getByRole("button", { name: /official elvis videos/i })).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button", { name: /christmas elvis/i })).toHaveAttribute("aria-current", "true");
 
     fireEvent.keyDown(drawer, { key: "ArrowRight" });
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Official Elvis Videos");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
 
     fireEvent.keyDown(drawer, { key: "Escape" });
 
-    expect(screen.queryByRole("dialog", { name: /stations/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: /jukebox/i })).not.toBeInTheDocument();
     expect(catalogButton).toHaveFocus();
   });
 
@@ -115,11 +115,11 @@ describe("ElvisCafe", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
     fireEvent.click(screen.getByRole("button", { name: /station catalog/i }));
-    fireEvent.click(screen.getByRole("button", { name: /vegas midnight jukebox/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^love songs/i }));
 
-    expect(screen.queryByRole("dialog", { name: /stations/i })).not.toBeInTheDocument();
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Vegas Midnight Jukebox");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
+    expect(screen.queryByRole("dialog", { name: /jukebox/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Love Songs");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-graceland-lounge.jpg");
   });
 
   it("labels the timer panel and restores focus when it closes", () => {
@@ -148,6 +148,7 @@ describe("ElvisCafe", () => {
       city: "test city",
       visualMode: "neon",
       imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+      theme: stations[0].theme,
       fallbackStationId: "sun-studio-after-dark",
       source: {
         type: "youtube",

@@ -1,6 +1,12 @@
 import { getYouTubeEmbedUrl as buildYouTubeEmbedUrl, getYouTubeSourceUrl } from "./youtube";
 
 export type VisualMode = "stage" | "neon" | "dim";
+export type StationTheme = {
+  label: string;
+  glowClass: string;
+  overlayClass: string;
+  dockClass: string;
+};
 
 export type StationSource =
   | {
@@ -22,6 +28,7 @@ export type Station = {
   city: string;
   visualMode: VisualMode;
   imageSrc: string;
+  theme: StationTheme;
   fallbackStationId?: string;
   source: StationSource;
 };
@@ -35,7 +42,133 @@ export type StationFallbackPlan = {
 
 const configuredYoutubeVideoId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID;
 const configuredYoutubePlaylistId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID;
-const defaultYoutubePlaylistId = "PLsjnHfb07M8Z6UXkupUq6pBzHrV3dnaQu";
+
+const stationThemes = {
+  christmas: {
+    label: "holiday lights",
+    glowClass: "text-shell drop-shadow-[0_0_24px_rgba(255,242,216,0.88)]",
+    overlayClass: "bg-[radial-gradient(circle_at_18%_24%,rgba(255,242,216,0.2),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(30,180,110,0.18),transparent_31%),linear-gradient(180deg,rgba(90,8,22,0.08),rgba(9,7,11,0.8))]",
+    dockClass: "border-shell/45 bg-velvet/45 shadow-[0_0_34px_rgba(255,242,216,0.24)]",
+  },
+  hits: {
+    label: "gold records",
+    glowClass: "text-gold drop-shadow-[0_0_24px_rgba(244,196,95,0.82)]",
+    overlayClass: "bg-[radial-gradient(circle_at_50%_34%,rgba(244,196,95,0.16),transparent_34%),linear-gradient(180deg,rgba(9,7,11,0.05),rgba(9,7,11,0.76))]",
+    dockClass: "border-gold/50 bg-night/58 shadow-[0_0_36px_rgba(244,196,95,0.22)]",
+  },
+  tour: {
+    label: "stage tour",
+    glowClass: "text-neon drop-shadow-[0_0_24px_rgba(35,215,255,0.82)]",
+    overlayClass: "bg-[radial-gradient(circle_at_28%_30%,rgba(35,215,255,0.18),transparent_30%),radial-gradient(circle_at_68%_24%,rgba(244,196,95,0.14),transparent_28%),linear-gradient(180deg,rgba(9,7,11,0.08),rgba(9,7,11,0.78))]",
+    dockClass: "border-neon/45 bg-night/58 shadow-neon",
+  },
+  deepCuts: {
+    label: "deep cuts",
+    glowClass: "text-shell drop-shadow-[0_0_20px_rgba(122,16,34,0.72)]",
+    overlayClass: "bg-[radial-gradient(circle_at_52%_38%,rgba(122,16,34,0.2),transparent_36%),linear-gradient(180deg,rgba(9,7,11,0.12),rgba(9,7,11,0.84))]",
+    dockClass: "border-velvet/60 bg-night/62 shadow-[0_0_34px_rgba(122,16,34,0.34)]",
+  },
+  love: {
+    label: "velvet love songs",
+    glowClass: "text-gold drop-shadow-[0_0_26px_rgba(255,128,170,0.74)]",
+    overlayClass: "bg-[radial-gradient(circle_at_62%_32%,rgba(255,128,170,0.18),transparent_32%),radial-gradient(circle_at_28%_26%,rgba(244,196,95,0.12),transparent_28%),linear-gradient(180deg,rgba(9,7,11,0.06),rgba(9,7,11,0.78))]",
+    dockClass: "border-gold/45 bg-velvet/34 shadow-[0_0_36px_rgba(255,128,170,0.22)]",
+  },
+  demo: {
+    label: "demo room",
+    glowClass: "text-gold drop-shadow-[0_0_22px_rgba(244,196,95,0.7)]",
+    overlayClass: "bg-[radial-gradient(circle_at_50%_42%,rgba(255,242,216,0.08),transparent_34%),linear-gradient(180deg,rgba(9,7,11,0.08),rgba(9,7,11,0.76))]",
+    dockClass: "border-shell/35 bg-night/55 shadow-[0_0_36px_rgba(0,0,0,0.45)]",
+  },
+} satisfies Record<string, StationTheme>;
+
+const playlistStations: Station[] = [
+  {
+    id: "christmas-elvis",
+    title: "Christmas Elvis",
+    mood: "holiday records / warm lamps / midnight snow",
+    city: "Christmas jukebox",
+    visualMode: "dim",
+    imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
+    theme: stationThemes.christmas,
+    fallbackStationId: "greatest-hits",
+    source: {
+      type: "youtube",
+      health: "unverified",
+      youtubeVideoId: "WwdI-gbm5kE",
+      youtubePlaylistId: "PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
+      originalUrl: "https://www.youtube.com/watch?v=WwdI-gbm5kE&list=PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
+    },
+  },
+  {
+    id: "greatest-hits",
+    title: "Greatest Hits",
+    mood: "gold records / famous choruses / prime time",
+    city: "RCA jukebox",
+    visualMode: "neon",
+    imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+    theme: stationThemes.hits,
+    fallbackStationId: "elvis-101",
+    source: {
+      type: "youtube",
+      health: "unverified",
+      youtubeVideoId: "WrMGGouem3c",
+      youtubePlaylistId: "PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
+      originalUrl: "https://www.youtube.com/watch?v=WrMGGouem3c&list=PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
+    },
+  },
+  {
+    id: "on-tour",
+    title: "On Tour",
+    mood: "live band / stage lights / road energy",
+    city: "Tour bus radio",
+    visualMode: "stage",
+    imageSrc: "/images/elvis-cafe-sun-studio.jpg",
+    theme: stationThemes.tour,
+    fallbackStationId: "greatest-hits",
+    source: {
+      type: "youtube",
+      health: "unverified",
+      youtubeVideoId: "tR2HOfnPsaI",
+      youtubePlaylistId: "PLsLrXjai8Jf4pGeXmvzmvxjiCA_ax404J",
+      originalUrl: "https://www.youtube.com/watch?v=tR2HOfnPsaI&list=PLsLrXjai8Jf4pGeXmvzmvxjiCA_ax404J",
+    },
+  },
+  {
+    id: "elvis-101",
+    title: "Elvis 101",
+    mood: "starter stack / essentials / all eras",
+    city: "Record shelf",
+    visualMode: "stage",
+    imageSrc: "/images/elvis-cafe-stage.png",
+    theme: stationThemes.deepCuts,
+    fallbackStationId: "greatest-hits",
+    source: {
+      type: "youtube",
+      health: "unverified",
+      youtubeVideoId: "hI_WiustW0",
+      youtubePlaylistId: "PLsLrXjai8Jf4xP2KMf3SNdo_ABadRGGZS",
+      originalUrl: "https://www.youtube.com/watch?v=hI_WiustW0&list=PLsLrXjai8Jf4xP2KMf3SNdo_ABadRGGZS",
+    },
+  },
+  {
+    id: "love-songs",
+    title: "Love Songs",
+    mood: "slow dance / velvet booth / last call",
+    city: "Blue moon lounge",
+    visualMode: "dim",
+    imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
+    theme: stationThemes.love,
+    fallbackStationId: "greatest-hits",
+    source: {
+      type: "youtube",
+      health: "unverified",
+      youtubeVideoId: "ttuVUynl5SU",
+      youtubePlaylistId: "PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ",
+      originalUrl: "https://www.youtube.com/watch?v=ttuVUynl5SU&list=PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ&pp=0gcJCfMCOCosWNin",
+    },
+  },
+];
 
 const youtubeStations: Station[] =
   configuredYoutubeVideoId || configuredYoutubePlaylistId
@@ -47,6 +180,7 @@ const youtubeStations: Station[] =
           city: "elvispresley.cafe",
           visualMode: "neon",
           imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+          theme: stationThemes.hits,
           fallbackStationId: "sun-studio-after-dark",
           source: {
             type: "youtube",
@@ -56,23 +190,7 @@ const youtubeStations: Station[] =
           },
         },
       ]
-    : [
-        {
-          id: "official-elvis-videos",
-          title: "Official Elvis Videos",
-          mood: "official videos / rock and roll / golden era",
-          city: "Elvis Presley VEVO",
-          visualMode: "neon",
-          imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
-          fallbackStationId: "sun-studio-after-dark",
-          source: {
-            type: "youtube",
-            health: "unverified",
-            youtubePlaylistId: defaultYoutubePlaylistId,
-            originalUrl: `https://www.youtube.com/playlist?list=${defaultYoutubePlaylistId}`,
-          },
-        },
-      ];
+    : playlistStations;
 
 export const stations: Station[] = [
   ...youtubeStations,
@@ -83,6 +201,7 @@ export const stations: Station[] = [
     city: "Memphis, Tennessee",
     visualMode: "stage",
     imageSrc: "/images/elvis-cafe-sun-studio.jpg",
+    theme: stationThemes.demo,
     fallbackStationId: "vegas-midnight-jukebox",
     source: {
       type: "demo",
@@ -96,6 +215,7 @@ export const stations: Station[] = [
     city: "Las Vegas, Nevada",
     visualMode: "neon",
     imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+    theme: stationThemes.hits,
     fallbackStationId: "graceland-gold-hour",
     source: {
       type: "demo",
@@ -109,6 +229,7 @@ export const stations: Station[] = [
     city: "Memphis, Tennessee",
     visualMode: "dim",
     imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
+    theme: stationThemes.love,
     fallbackStationId: "sun-studio-after-dark",
     source: {
       type: "demo",

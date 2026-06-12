@@ -22,7 +22,16 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
-import { getStationFallbackPlan, getStationSourceUrl, getStationStatus, stations, type Station, type StationSource, type VisualMode } from "@/lib/stations";
+import {
+  getStationFallbackPlan,
+  getStationSourceUrl,
+  getStationStatus,
+  stations,
+  type Station,
+  type StationSource,
+  type StationTheme,
+  type VisualMode,
+} from "@/lib/stations";
 import {
   getYouTubeEmbedUrl,
   getYouTubeEmbedVideoId,
@@ -360,7 +369,7 @@ export function ElvisCafe() {
         className={`object-cover transition duration-700 ${visualClass} ${isStarted && !isLowPower ? "scale-[1.03]" : ""}`}
       />
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,242,216,0.08),transparent_34%),linear-gradient(180deg,rgba(9,7,11,0.08),rgba(9,7,11,0.76))]" />
+      <div className={`absolute inset-0 ${activeStation.theme.overlayClass}`} />
       <div className="crt-overlay absolute inset-0" />
       <div className="noise-overlay absolute inset-0" />
       {isStarted && activeStation.source.type === "youtube" ? (
@@ -444,7 +453,7 @@ export function ElvisCafe() {
 
         <div className="pointer-events-none mx-auto flex w-full max-w-4xl flex-1 items-center justify-center pb-20 pt-12 text-center">
           <div className="select-none">
-            <p className="font-display text-[clamp(5rem,18vw,13rem)] uppercase leading-none text-gold/95 drop-shadow-[0_0_22px_rgba(244,196,95,0.7)]">
+            <p className={`font-display text-[clamp(5rem,18vw,13rem)] uppercase leading-none ${activeStation.theme.glowClass}`}>
               Elvis
             </p>
             <p className="-mt-2 font-display text-[clamp(2rem,7vw,5.25rem)] uppercase leading-none text-neon drop-shadow-[0_0_18px_rgba(35,215,255,0.9)]">
@@ -468,6 +477,7 @@ export function ElvisCafe() {
             stationMood={activeStation.mood}
             stationCity={activeStation.city}
             stationStatus={playerStatus}
+            stationTheme={activeStation.theme}
             isShuffled={isShuffled}
             sourceUrl={sourceUrl}
             volume={volume}
@@ -700,6 +710,7 @@ type PlayerDockProps = {
   stationMood: string;
   stationCity: string;
   stationStatus: string;
+  stationTheme: StationTheme;
   isShuffled: boolean;
   sourceUrl?: string;
   volume: number;
@@ -718,6 +729,7 @@ function PlayerDock({
   stationMood,
   stationCity,
   stationStatus,
+  stationTheme,
   isShuffled,
   sourceUrl,
   volume,
@@ -730,7 +742,7 @@ function PlayerDock({
   onOpenSource,
 }: PlayerDockProps) {
   return (
-    <div className="mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md border border-shell/35 bg-night/55 p-3 shadow-[0_0_36px_rgba(0,0,0,0.45)] backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-4">
+    <div className={`mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md border p-3 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
       <div className="flex items-center justify-center gap-2 sm:justify-start">
         <IconButton label="Previous station" onClick={onPrevious}>
           <SkipBack size={19} />
@@ -755,6 +767,7 @@ function PlayerDock({
         </p>
         <p className="truncate text-sm text-shell/86">{stationMood}</p>
         <p className="text-xs uppercase text-neon/85">{stationCity}</p>
+        <p className="text-xs uppercase text-gold/80">{stationTheme.label}</p>
         <p className="mt-1 text-xs uppercase text-shell/60" data-testid="station-status">
           {shareStatus ?? stationStatus}
         </p>
@@ -955,7 +968,7 @@ function StationCatalogDrawer({
         <div className="flex items-start justify-between gap-4 border-b border-shell/15 p-5">
           <div>
             <h2 id={titleId} className="font-display text-2xl uppercase text-gold">
-              stations
+              jukebox
             </h2>
           </div>
           <IconButton ref={closeButtonRef} label="Close station catalog" onClick={onClose}>
@@ -985,6 +998,7 @@ function StationCatalogDrawer({
                       <span className="min-w-0">
                         <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
                         <span className="mt-1 block text-xs uppercase text-neon/85">{station.city}</span>
+                        <span className="mt-1 block text-xs uppercase text-gold/70">{station.theme.label}</span>
                       </span>
                       <span className="shrink-0 rounded border border-shell/25 px-2 py-1 text-[0.68rem] uppercase text-shell/78">{sourceLabel}</span>
                     </span>
