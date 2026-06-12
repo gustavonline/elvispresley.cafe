@@ -106,6 +106,7 @@ Avoid: Elvis Presley face or body, celebrity likeness, logos, trademarks, readab
 ## Performance Notes
 
 - Still image plus CSS scanlines/noise is the default.
+- Motion mode uses still-image drift, a subtle gold light sweep, and scene crossfade instead of video or GIF loops.
 - GIF backgrounds should be avoided unless short and heavily optimized.
 - Video backgrounds need a low-power fallback and should not be required for the core experience.
 - Motion mode should keep a still-image fallback and respect reduced-motion preferences.

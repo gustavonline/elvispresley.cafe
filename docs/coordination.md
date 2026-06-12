@@ -56,7 +56,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #28: Add screenshot regression and lofi parity QA script. Closed in main via `npm run qa:visual`.
 - #29: Generate dedicated AI scene sets for each Elvis station. Closed in main.
 - #30: Rotate multiple station images during playback and song changes.
-- #31: Explore lightweight animated scene loops for optional motion mode.
+- #31: Explore lightweight animated scene loops for optional motion mode. Closed in main via CSS scene drift, light sweep, and reduced-motion fallback.
 
 ## Active Worker Threads
 

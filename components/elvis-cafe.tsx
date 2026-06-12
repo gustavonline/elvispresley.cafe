@@ -389,6 +389,7 @@ export function ElvisCafe() {
       ) : null}
 
       <div className={`absolute inset-0 z-[2] ${activeStation.theme.overlayClass} opacity-20`} />
+      {isMotionEnabled ? <div className="motion-light-overlay absolute inset-0 z-[2]" aria-hidden="true" /> : null}
       <div className="crt-overlay absolute inset-0 z-[3]" />
       <div className="noise-overlay absolute inset-0 z-[4]" />
       {isStarted && activeStation.source.type === "youtube" ? (
