@@ -1,6 +1,6 @@
 # Visual Asset Pipeline
 
-Issue #18 adds an original station scene pack. The app keeps the legacy generated baseline at `public/images/elvis-cafe-stage.png`, and each demo station now selects one optimized scene from station metadata.
+Issue #18 added the first original station scene pack. Issue #29 replaces the station backgrounds with a dedicated generated scene for each jukebox station, using the Elvis groovy palette as scene lighting instead of a UI overlay.
 
 ## Rules
 
@@ -10,7 +10,40 @@ Issue #18 adds an original station scene pack. The app keeps the legacy generate
 - Document prompts in README or this file.
 - Prefer still images plus CSS motion treatment before GIF/video backgrounds; it is simpler, smaller, and easier to keep responsive.
 
-## Scene Pack
+## Dedicated Station Scene Pack
+
+Dedicated station assets were generated with the built-in image generation tool on 2026-06-12 from original prompts. No source images, celebrity references, logos, copied lofi.cafe assets, or readable copyrighted text were used.
+
+Project copies:
+
+- `public/images/station-greatest-hits.png`: RCA-era jukebox room with gold records and velvet curtains.
+- `public/images/station-christmas-elvis.png`: warm winter holiday lounge with cream lamps, ornaments, and a small empty stage.
+- `public/images/station-on-tour.png`: vintage tour bus and concert-road scene.
+- `public/images/station-elvis-101.png`: curated record-shelf listening room.
+- `public/images/station-love-songs.png`: velvet slow-dance lounge with moonlit stage.
+
+Original generated PNGs are retained by Codex under `/Users/gustavanderson/.codex/generated_images/019eb2d3-346f-7ce3-8fb6-1a9b4c41fe95/`.
+
+Shared prompt constraints:
+
+```text
+Use case: stylized-concept
+Asset type: full-bleed 16:9 web background for an Elvis-inspired music cafe station
+Style/medium: polished cinematic retro illustration with groovy 1950s-1970s influence, high detail, suitable as a full-screen app background.
+Composition/framing: wide 16:9 landscape with darker edges and lower area for UI readability, enough visible detail for thumbnails.
+Color palette: #f4c41a gold, #f4648a small accent, #655414 shadow, #aa4c64 velvet, #d4bc9c cream, #5e303c plum-dark base.
+Constraints: no readable text, no logos, no watermark, no celebrity likeness, no face, no Elvis costume, no copyrighted poster art.
+```
+
+Station-specific prompt direction:
+
+- Greatest Hits: empty 1950s-inspired music cafe with chrome jukebox, gold record shapes, velvet curtains, checkerboard floor, and warm haze.
+- Christmas Elvis: empty holiday rock-and-roll lounge with winter window, ornaments, garland, vinyl records, cream lamp glow, and no red/green dominance.
+- On Tour: empty vintage tour bus parked outside a small glowing theater at dusk, chrome microphone case, guitar case silhouettes, and distant stage bulbs.
+- Elvis 101: empty record-library listening room with vinyl shelves, turntable, cream chairs, abstract gold records, and a small vintage microphone stand.
+- Love Songs: empty romantic velvet lounge with curved booths, moonlit window, gold microphone stand, roses as abstract shapes, and candle-like lamps.
+
+## Legacy Scene Pack
 
 All scene-pack assets were generated with the built-in image generation tool on 2026-06-11 from original prompts. No source images, celebrity references, logos, copied lofi.cafe assets, or readable copyrighted text were used.
 

@@ -341,7 +341,7 @@ export function ElvisCafe() {
     togglePlay,
   ]);
 
-  const visualClass = "brightness-[0.74] saturate-[1.14]";
+  const visualClass = "brightness-[0.82] saturate-[1.08]";
 
   return (
     <main
@@ -358,7 +358,7 @@ export function ElvisCafe() {
         className={`object-cover transition duration-700 ${visualClass} ${isMotionEnabled ? "station-scene-motion" : ""}`}
       />
 
-      <div className={`absolute inset-0 ${activeStation.theme.overlayClass} opacity-30`} />
+      <div className={`absolute inset-0 ${activeStation.theme.overlayClass} opacity-20`} />
       <div className="crt-overlay absolute inset-0" />
       <div className="noise-overlay absolute inset-0" />
       {isStarted && activeStation.source.type === "youtube" ? (
@@ -944,16 +944,16 @@ function StationCatalogModal({
     <div
       id={id}
       ref={modalRef}
-      className="fixed inset-0 z-30 grid place-items-start bg-[rgba(19,13,16,0.92)] px-4 py-8 backdrop-blur-md sm:px-8"
+      className="fixed inset-0 z-30 overflow-y-auto bg-[rgba(19,13,16,0.96)] px-4 py-6 backdrop-blur-md sm:px-8 sm:py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       onKeyDown={onDialogKeyDown}
     >
-      <div className="mx-auto w-full max-w-6xl rounded-md bg-[rgba(19,13,16,0.96)] text-shell shadow-[0_0_70px_rgba(0,0,0,0.92)]">
-        <div className="flex items-start justify-between gap-4 p-4 sm:p-5">
+      <div className="mx-auto w-full max-w-7xl text-shell">
+        <div className="flex items-start justify-between gap-4 pb-5">
           <div>
-            <h2 id={titleId} className="font-display text-2xl uppercase text-gold">
+            <h2 id={titleId} className="font-display text-3xl uppercase text-gold drop-shadow-[0_0_18px_rgba(244,196,26,0.24)]">
               jukebox
             </h2>
           </div>
@@ -968,8 +968,8 @@ function StationCatalogModal({
           </button>
         </div>
 
-        <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto p-3 sm:p-4">
-          <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div>
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {stations.map((station) => {
               const isActive = station.id === activeStationId;
 
@@ -982,22 +982,23 @@ function StationCatalogModal({
                     aria-current={isActive ? "true" : undefined}
                     className={`group relative block aspect-[4/3] w-full overflow-hidden rounded-md text-left transition focus:outline-none focus:ring-2 focus:ring-gold ${
                       isActive
-                        ? "shadow-[0_0_28px_rgba(244,100,138,0.58)]"
-                        : "shadow-[0_0_24px_rgba(0,0,0,0.55)] hover:shadow-[0_0_28px_rgba(244,196,26,0.28)]"
+                        ? "shadow-[0_0_34px_rgba(244,196,26,0.42),0_0_58px_rgba(244,100,138,0.18)]"
+                        : "shadow-[0_0_26px_rgba(0,0,0,0.7)] hover:shadow-[0_0_30px_rgba(244,196,26,0.2)]"
                     }`}
                   >
                     <CafeImage
                       src={station.imageSrc}
                       alt=""
                       fill
+                      priority
                       sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover brightness-100 saturate-[1.12] transition duration-300 group-hover:scale-[1.04]"
+                      className="object-cover brightness-110 saturate-[1.12] transition duration-300 group-hover:scale-[1.04]"
                     />
-                    <span className={`absolute inset-0 ${station.theme.overlayClass} opacity-25`} />
-                    <span className="absolute inset-0 bg-gradient-to-t from-night/92 via-night/26 to-transparent" />
+                    <span className="absolute inset-0 bg-gradient-to-t from-night/88 via-night/12 to-transparent" />
+                    <span className="absolute inset-x-0 top-0 h-px bg-shell/12" />
                     <span className="absolute inset-x-0 bottom-0 block p-4">
                       <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
-                      <span className="mt-1 block text-xs uppercase text-neon/90">{station.city}</span>
+                      <span className="mt-1 block text-xs uppercase text-shell/78">{station.city}</span>
                     </span>
                   </button>
                 </li>

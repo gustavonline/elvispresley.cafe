@@ -48,7 +48,7 @@ Fallback is intentionally conservative. YouTube does not expose every failure mo
   mood: "gold records / famous choruses / prime time",
   city: "RCA jukebox",
   visualMode: "neon",
-  imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+  imageSrc: "/images/station-greatest-hits.png",
   theme: stationThemes.hits,
   fallbackStationId: "elvis-101",
   source: {

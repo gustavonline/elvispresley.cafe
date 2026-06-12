@@ -48,13 +48,13 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #20: Add station health fallback and auto-skip behavior. Closed in main.
 - #21: Add mobile viewport and touch-control polish pass.
 - #22: Prepare static demo deployment and environment setup docs. Closed in main via `docs/deployment.md`.
-- #23: Polish about/help overlay with credits, shortcuts, and source safety.
+- #23: Polish about/help overlay with credits, shortcuts, and source safety. Closed in main.
 - #24: Run lofi.cafe parity QA and close MVP gaps.
 - #25: Add ambient room SFX layer and mute control.
 - #26: Add cinematic scene transitions between stations.
 - #27: Add station seed data for Elvis-safe public playlists.
 - #28: Add screenshot regression and lofi parity QA script.
-- #29: Generate dedicated AI scene sets for each Elvis station.
+- #29: Generate dedicated AI scene sets for each Elvis station. Closed in main.
 - #30: Rotate multiple station images during playback and song changes.
 - #31: Explore lightweight animated scene loops for optional motion mode.
 

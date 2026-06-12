@@ -23,12 +23,12 @@ describe("ElvisCafe", () => {
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
 
     expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/station-greatest-hits.png");
 
     fireEvent.click(screen.getByRole("button", { name: /next station/i }));
 
     expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-graceland-lounge.jpg");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/station-christmas-elvis.png");
   });
 
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {
@@ -115,7 +115,7 @@ describe("ElvisCafe", () => {
 
     expect(screen.queryByRole("dialog", { name: /jukebox/i })).not.toBeInTheDocument();
     expect(screen.getByTestId("station-title")).toHaveTextContent("Love Songs");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-graceland-lounge.jpg");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/station-love-songs.png");
   });
 
   it("labels the timer panel and restores focus when it closes", () => {
