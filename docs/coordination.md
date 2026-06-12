@@ -8,9 +8,9 @@ This file tracks the current direction for the MVP while multiple worktrees are 
 - Full-screen Elvis-inspired music room.
 - Generated original station scenes wired through `Station.imageSrc`.
 - Local player shell with station metadata, play/pause, previous/next, shuffle, volume, fullscreen, and About modal.
-- Top-right station catalog drawer lists all stations with city, mood, source/status, and direct selection.
+- Station catalog opens as a jukebox modal with image cards, names, mood, source/status, and direct selection.
 - Pomodoro, shortcuts/help, disable-shortcuts toggle, share/source controls, low-power mode, visual modes, persistent preferences, PWA manifest, CI, and a minimal test harness.
-- YouTube IFrame API support exists through public env vars. Clear unavailable/private/embed-blocked source failures now auto-skip through a bounded fallback path.
+- YouTube IFrame API support exists through typed Elvis playlist stations. Clear unavailable/private/embed-blocked source failures now auto-skip through a bounded fallback path.
 
 ## lofi.cafe Inspiration To Adapt
 
@@ -21,7 +21,7 @@ Reference behavior observed on 2026-06-10:
 - Broken/private station fallback message and skip behavior.
 - Top-right utility controls: fullscreen, share, timer, about.
 - Pomodoro panel with `25:00`, `Start`, and `+5:00`.
-- Station catalog control opens a compact drawer for direct station selection without changing previous/next/shuffle behavior.
+- Station catalog control opens a compact jukebox picker for direct station selection without changing previous/next/shuffle behavior.
 - About/help panel lists shortcuts and includes a disable-shortcuts checkbox.
 - Shortcuts include station changes, play/pause, tweet/share, visual changes, original video, low-power mode, and Escape close.
 

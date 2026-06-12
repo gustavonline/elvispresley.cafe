@@ -26,13 +26,13 @@ describe("ElvisCafe", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-graceland-lounge.jpg");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
 
     fireEvent.click(screen.getByRole("button", { name: /next station/i }));
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
-    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-vegas-jukebox.jpg");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
+    expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/elvis-cafe-graceland-lounge.jpg");
   });
 
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {
@@ -59,7 +59,7 @@ describe("ElvisCafe", () => {
     volume.focus();
     fireEvent.keyDown(volume, { key: "ArrowRight" });
 
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
   });
 
   it("manages About dialog semantics, focus trap, shortcut blocking, and Escape close", () => {
@@ -76,7 +76,7 @@ describe("ElvisCafe", () => {
     expect(closeButton).toHaveFocus();
 
     fireEvent.keyDown(window, { key: "ArrowRight" });
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
 
     disableShortcuts.focus();
     fireEvent.keyDown(dialog, { key: "Tab" });
@@ -99,10 +99,10 @@ describe("ElvisCafe", () => {
     const drawer = screen.getByRole("dialog", { name: /jukebox/i });
     expect(drawer).toHaveAttribute("aria-modal", "true");
     expect(screen.getByRole("button", { name: /close station catalog/i })).toHaveFocus();
-    expect(screen.getByRole("button", { name: /christmas elvis/i })).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button", { name: /greatest hits/i })).toHaveAttribute("aria-current", "true");
 
     fireEvent.keyDown(drawer, { key: "ArrowRight" });
-    expect(screen.getByTestId("station-title")).toHaveTextContent("Christmas Elvis");
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
 
     fireEvent.keyDown(drawer, { key: "Escape" });
 
@@ -149,7 +149,7 @@ describe("ElvisCafe", () => {
       visualMode: "neon",
       imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
       theme: stations[0].theme,
-      fallbackStationId: "sun-studio-after-dark",
+      fallbackStationId: "greatest-hits",
       source: {
         type: "youtube",
         health: "unverified",
@@ -167,8 +167,13 @@ describe("ElvisCafe", () => {
       playVideo: vi.fn(),
       setVolume: vi.fn(),
     };
-    const Player = vi.fn((_element: HTMLElement, options: FakeYouTubePlayerOptions) => {
-      options.events?.onError?.({ data: 100 });
+    let shouldError = true;
+    const Player = vi.fn(function (_element: HTMLElement, options: FakeYouTubePlayerOptions) {
+      if (shouldError) {
+        shouldError = false;
+        options.events?.onError?.({ data: 100 });
+      }
+
       return player;
     });
 
@@ -180,9 +185,9 @@ describe("ElvisCafe", () => {
     fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("station-title")).toHaveTextContent("Sun Studio After Dark");
+      expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
     });
-    expect(screen.getByTestId("station-status")).toHaveTextContent("source unavailable - switched to Sun Studio After Dark");
-    expect(Player).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("station-status")).toHaveTextContent("source unavailable - switched to Greatest Hits");
+    expect(Player).toHaveBeenCalledTimes(2);
   });
 });

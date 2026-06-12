@@ -13,13 +13,17 @@ import {
 describe("YouTube helpers", () => {
   it("ships a playable YouTube station first by default", () => {
     expect(stations[0]).toMatchObject({
-      id: "christmas-elvis",
+      id: "greatest-hits",
       source: {
         type: "youtube",
-        youtubeVideoId: "WwdI-gbm5kE",
-        youtubePlaylistId: "PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
+        youtubeVideoId: "WrMGGouem3c",
+        youtubePlaylistId: "PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
       },
     });
+  });
+
+  it("limits the built-in jukebox to the five Elvis playlist stations", () => {
+    expect(stations.map((station) => station.id)).toEqual(["greatest-hits", "christmas-elvis", "on-tour", "elvis-101", "love-songs"]);
   });
 
   it("builds a watch URL for a configured video", () => {

@@ -11,7 +11,7 @@ Station data lives in `lib/stations.ts`.
 - `visualMode`: preferred visual treatment: `stage`, `neon`, or `dim`.
 - `theme`: station-specific room treatment for label, glow, overlay, and player dock styling.
 - `fallbackStationId`: station to try when a configured source is unavailable.
-- `source.type`: `demo` or `youtube`.
+- `source.type`: `youtube`.
 - `source.youtubeVideoId`: optional YouTube video ID.
 - `source.youtubePlaylistId`: optional YouTube playlist ID.
 - `source.originalUrl`: optional source URL opened by the source button.
@@ -21,25 +21,17 @@ Station data lives in `lib/stations.ts`.
 
 Do not add copyrighted audio files to the repository. Add YouTube IDs or licensed source URLs to station objects instead. The UI already shows source availability and can open a configured original source link.
 
-The default catalog includes these YouTube-backed jukebox stations:
+The catalog includes exactly these YouTube-backed jukebox stations:
 
-- `Christmas Elvis`: `WwdI-gbm5kE` with playlist `PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m`.
 - `Greatest Hits`: `WrMGGouem3c` with playlist `PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp`.
+- `Christmas Elvis`: `WwdI-gbm5kE` with playlist `PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m`.
 - `On Tour`: `tR2HOfnPsaI` with playlist `PLsLrXjai8Jf4pGeXmvzmvxjiCA_ax404J`.
 - `Elvis 101`: `hI_WiustW0` with playlist `PLsLrXjai8Jf4xP2KMf3SNdo_ABadRGGZS`.
 - `Love Songs`: `ttuVUynl5SU` with playlist `PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ`.
 
 Each station has a matching theme so the background scene, color overlay, and player dock adapt when the jukebox selection changes. This gives the demo actual music sources without bundling audio files in the repository.
 
-For local configuration without editing UI code, set either of these public environment variables:
-
-```bash
-NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID
-NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID=PLAYLIST_ID
-```
-
-When present, the app replaces the default playlist station with your configured YouTube station and embeds it after the user starts the app.
-The YouTube player is controlled through the IFrame API where embedding is permitted, so the app dock can send play, pause, and volume changes to the configured source. If both variables are present, the configured video is loaded with the playlist ID attached.
+The YouTube player is controlled through the IFrame API where embedding is permitted, so the app dock can send play, pause, and volume changes to the selected source.
 
 The player status line can show loading, ready, playing, paused, buffering, ended, or unavailable states for YouTube sources. Demo stations do not depend on the YouTube API.
 
@@ -51,19 +43,20 @@ Fallback is intentionally conservative. YouTube does not expose every failure mo
 
 ```ts
 {
-  id: "memphis-radio",
-  title: "Memphis Radio",
-  mood: "gold records / soft stage lights",
-  city: "Memphis, Tennessee",
-  visualMode: "stage",
-  imageSrc: "/images/elvis-cafe-sun-studio.jpg",
-  theme: stationThemes.demo,
-  fallbackStationId: "vegas-midnight-jukebox",
+  id: "greatest-hits",
+  title: "Greatest Hits",
+  mood: "gold records / famous choruses / prime time",
+  city: "RCA jukebox",
+  visualMode: "neon",
+  imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
+  theme: stationThemes.hits,
+  fallbackStationId: "elvis-101",
   source: {
     type: "youtube",
     health: "unverified",
-    youtubePlaylistId: "PLAYLIST_ID",
-    originalUrl: "https://www.youtube.com/playlist?list=PLAYLIST_ID",
+    youtubeVideoId: "WrMGGouem3c",
+    youtubePlaylistId: "PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
+    originalUrl: "https://www.youtube.com/watch?v=WrMGGouem3c&list=PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
   },
 }
 ```

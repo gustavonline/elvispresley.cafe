@@ -40,9 +40,6 @@ export type StationFallbackPlan = {
   mode: "configured" | "next";
 };
 
-const configuredYoutubeVideoId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID;
-const configuredYoutubePlaylistId = process.env.NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID;
-
 const stationThemes = {
   christmas: {
     label: "holiday lights",
@@ -82,24 +79,7 @@ const stationThemes = {
   },
 } satisfies Record<string, StationTheme>;
 
-const playlistStations: Station[] = [
-  {
-    id: "christmas-elvis",
-    title: "Christmas Elvis",
-    mood: "holiday records / warm lamps / midnight snow",
-    city: "Christmas jukebox",
-    visualMode: "dim",
-    imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
-    theme: stationThemes.christmas,
-    fallbackStationId: "greatest-hits",
-    source: {
-      type: "youtube",
-      health: "unverified",
-      youtubeVideoId: "WwdI-gbm5kE",
-      youtubePlaylistId: "PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
-      originalUrl: "https://www.youtube.com/watch?v=WwdI-gbm5kE&list=PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
-    },
-  },
+export const stations: Station[] = [
   {
     id: "greatest-hits",
     title: "Greatest Hits",
@@ -115,6 +95,23 @@ const playlistStations: Station[] = [
       youtubeVideoId: "WrMGGouem3c",
       youtubePlaylistId: "PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
       originalUrl: "https://www.youtube.com/watch?v=WrMGGouem3c&list=PLsLrXjai8Jf49o9VY_cGDUSj24bf3oFyp",
+    },
+  },
+  {
+    id: "christmas-elvis",
+    title: "Christmas Elvis",
+    mood: "holiday records / warm lamps / midnight snow",
+    city: "Christmas jukebox",
+    visualMode: "dim",
+    imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
+    theme: stationThemes.christmas,
+    fallbackStationId: "greatest-hits",
+    source: {
+      type: "youtube",
+      health: "unverified",
+      youtubeVideoId: "WwdI-gbm5kE",
+      youtubePlaylistId: "PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
+      originalUrl: "https://www.youtube.com/watch?v=WwdI-gbm5kE&list=PLsLrXjai8Jf57O9kqeKn50nwhOu8J9J5m",
     },
   },
   {
@@ -166,74 +163,6 @@ const playlistStations: Station[] = [
       youtubeVideoId: "ttuVUynl5SU",
       youtubePlaylistId: "PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ",
       originalUrl: "https://www.youtube.com/watch?v=ttuVUynl5SU&list=PLsLrXjai8Jf7ir4xyacKA-Ioh01Azo-UQ&pp=0gcJCfMCOCosWNin",
-    },
-  },
-];
-
-const youtubeStations: Station[] =
-  configuredYoutubeVideoId || configuredYoutubePlaylistId
-    ? [
-        {
-          id: "configured-youtube-station",
-          title: "Configured Elvis Radio",
-          mood: "YouTube source / custom station / live room",
-          city: "elvispresley.cafe",
-          visualMode: "neon",
-          imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
-          theme: stationThemes.hits,
-          fallbackStationId: "sun-studio-after-dark",
-          source: {
-            type: "youtube",
-            health: "unverified",
-            youtubeVideoId: configuredYoutubeVideoId,
-            youtubePlaylistId: configuredYoutubePlaylistId,
-          },
-        },
-      ]
-    : playlistStations;
-
-export const stations: Station[] = [
-  ...youtubeStations,
-  {
-    id: "sun-studio-after-dark",
-    title: "Sun Studio After Dark",
-    mood: "early rock / warm tape / slow sway",
-    city: "Memphis, Tennessee",
-    visualMode: "stage",
-    imageSrc: "/images/elvis-cafe-sun-studio.jpg",
-    theme: stationThemes.demo,
-    fallbackStationId: "vegas-midnight-jukebox",
-    source: {
-      type: "demo",
-      health: "ready",
-    },
-  },
-  {
-    id: "vegas-midnight-jukebox",
-    title: "Vegas Midnight Jukebox",
-    mood: "neon ballads / velvet room / late set",
-    city: "Las Vegas, Nevada",
-    visualMode: "neon",
-    imageSrc: "/images/elvis-cafe-vegas-jukebox.jpg",
-    theme: stationThemes.hits,
-    fallbackStationId: "graceland-gold-hour",
-    source: {
-      type: "demo",
-      health: "ready",
-    },
-  },
-  {
-    id: "graceland-gold-hour",
-    title: "Graceland Gold Hour",
-    mood: "gospel glow / brass hits / soft spotlight",
-    city: "Memphis, Tennessee",
-    visualMode: "dim",
-    imageSrc: "/images/elvis-cafe-graceland-lounge.jpg",
-    theme: stationThemes.love,
-    fallbackStationId: "sun-studio-after-dark",
-    source: {
-      type: "demo",
-      health: "ready",
     },
   },
 ];

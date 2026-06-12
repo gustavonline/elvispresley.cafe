@@ -21,22 +21,9 @@ npm run build
 
 ## Music configuration
 
-Station data lives in `lib/stations.ts`. By default, the jukebox includes five YouTube-backed Elvis stations: Christmas Elvis, Greatest Hits, On Tour, Elvis 101, and Love Songs. Each station carries its own scene, color treatment, and player glow so the room changes with the selected playlist. You can override the default YouTube source through public environment variables:
+Station data lives in `lib/stations.ts`. The jukebox includes five YouTube-backed Elvis stations: Greatest Hits, Christmas Elvis, On Tour, Elvis 101, and Love Songs. Each station carries its own scene, color treatment, and player glow so the room changes with the selected playlist.
 
-```bash
-NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID
-NEXT_PUBLIC_ELVIS_YOUTUBE_PLAYLIST_ID=PLAYLIST_ID
-```
-
-Set either variable for a single configured station. If both are set, the video starts inside the playlist context. The app loads the YouTube IFrame API after user start and wires the custom play/pause and volume controls to the hidden `youtube-nocookie.com` player when the source is available. If neither variable is set, the built-in jukebox stations use their configured playlist/video pairs.
-
-To verify locally:
-
-```bash
-NEXT_PUBLIC_ELVIS_YOUTUBE_VIDEO_ID=VIDEO_ID npm run dev
-```
-
-Then open http://localhost:3000, start the cafe, and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the IFrame API reports a source as unavailable, private, invalid, or blocked from embedding, the app shows a concise fallback status and automatically skips to that station's `fallbackStationId`. If that fallback is missing or was already tried in the same auto-skip chain, the app moves to the next unattempted station instead. Auto-skip attempts are bounded to one pass through the station list so a broken set of YouTube sources cannot loop endlessly.
+Open http://localhost:3000, start the cafe, and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the IFrame API reports a source as unavailable, private, invalid, or blocked from embedding, the app shows a concise fallback status and automatically skips to that station's `fallbackStationId`. If that fallback is missing or was already tried in the same auto-skip chain, the app moves to the next unattempted station instead. Auto-skip attempts are bounded to one pass through the station list so a broken set of YouTube sources cannot loop endlessly.
 
 This fallback depends on errors surfaced by the YouTube IFrame API or API load failures. Some network stalls, regional restrictions, ad states, or normal video endings may not produce a reliable unavailable event, so they are reported through the player status line when possible instead of being guessed.
 

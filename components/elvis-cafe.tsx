@@ -144,6 +144,7 @@ export function ElvisCafe() {
     (direction: 1 | -1) => {
       setShareStatus(undefined);
       setStationFallbackStatus(undefined);
+      setYoutubePlayerStatus("idle");
       autoFallbackAttemptedStationIdsRef.current.clear();
       setStationIndex((current) => {
         if (isShuffled) {
@@ -165,6 +166,7 @@ export function ElvisCafe() {
 
     setShareStatus(undefined);
     setStationFallbackStatus(undefined);
+    setYoutubePlayerStatus("idle");
     autoFallbackAttemptedStationIdsRef.current.clear();
     setStationIndex(nextStationIndex);
     setIsCatalogOpen(false);
@@ -248,6 +250,7 @@ export function ElvisCafe() {
     }
 
     setStationFallbackStatus(fallbackPlan.message);
+    setYoutubePlayerStatus("idle");
     setStationIndex(fallbackPlan.stationIndex);
   }, [activeStation.id, activeStation.source.type, isStarted, stationIndex, youtubePlayerStatus]);
 
@@ -507,7 +510,7 @@ export function ElvisCafe() {
       ) : null}
 
       {isCatalogOpen ? (
-        <StationCatalogDrawer
+        <StationCatalogModal
           id={catalogDrawerId}
           activeStationId={activeStation.id}
           stations={stations}
@@ -894,7 +897,7 @@ function TimerPanel({
   );
 }
 
-function StationCatalogDrawer({
+function StationCatalogModal({
   id,
   activeStationId,
   stations,
@@ -909,7 +912,7 @@ function StationCatalogDrawer({
   onSelectStation: (stationId: string) => void;
   returnFocusRef: React.RefObject<HTMLButtonElement | null>;
 }) {
-  const drawerRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
@@ -930,11 +933,11 @@ function StationCatalogDrawer({
       return;
     }
 
-    if (event.key !== "Tab" || !drawerRef.current) {
+    if (event.key !== "Tab" || !modalRef.current) {
       return;
     }
 
-    const focusable = getFocusableElements(drawerRef.current);
+    const focusable = getFocusableElements(modalRef.current);
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
@@ -957,15 +960,15 @@ function StationCatalogDrawer({
   return (
     <div
       id={id}
-      ref={drawerRef}
-      className="fixed inset-0 z-30 flex justify-end bg-night/68 backdrop-blur-sm"
+      ref={modalRef}
+      className="fixed inset-0 z-30 grid place-items-start bg-night/78 px-4 py-8 backdrop-blur-sm sm:px-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       onKeyDown={onDialogKeyDown}
     >
-      <div className="flex h-full w-full max-w-md flex-col border-l border-gold/45 bg-night/92 text-shell shadow-[0_0_44px_rgba(0,0,0,0.55)]">
-        <div className="flex items-start justify-between gap-4 border-b border-shell/15 p-5">
+      <div className="mx-auto w-full max-w-6xl rounded-md border border-gold/45 bg-night/92 text-shell shadow-[0_0_44px_rgba(0,0,0,0.62)]">
+        <div className="flex items-start justify-between gap-4 border-b border-shell/15 p-4 sm:p-5">
           <div>
             <h2 id={titleId} className="font-display text-2xl uppercase text-gold">
               jukebox
@@ -976,34 +979,44 @@ function StationCatalogDrawer({
           </IconButton>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-3">
-          <ol className="grid gap-2">
+        <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto p-3 sm:p-4">
+          <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {stations.map((station) => {
               const isActive = station.id === activeStationId;
-              const sourceLabel = station.source.type === "demo" ? "demo" : `youtube / ${station.source.health}`;
+              const sourceLabel = station.source.type === "demo" ? "demo" : "youtube";
 
               return (
                 <li key={station.id}>
                   <button
                     type="button"
                     onClick={() => onSelectStation(station.id)}
+                    aria-label={station.title}
                     aria-current={isActive ? "true" : undefined}
-                    className={`w-full rounded-md border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-gold ${
+                    className={`group grid h-full w-full grid-rows-[auto_1fr] overflow-hidden rounded-md border text-left transition focus:outline-none focus:ring-2 focus:ring-gold ${
                       isActive
                         ? "border-gold bg-gold/12 shadow-neon"
                         : "border-shell/20 bg-night/48 hover:border-gold/75 hover:bg-shell/5"
                     }`}
                   >
-                    <span className="flex items-start justify-between gap-3">
-                      <span className="min-w-0">
-                        <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
-                        <span className="mt-1 block text-xs uppercase text-neon/85">{station.city}</span>
-                        <span className="mt-1 block text-xs uppercase text-gold/70">{station.theme.label}</span>
+                    <span className="relative block aspect-video overflow-hidden">
+                      <Image
+                        src={station.imageSrc}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover brightness-[0.78] saturate-[1.15] transition duration-300 group-hover:scale-[1.04]"
+                      />
+                      <span className={`absolute inset-0 ${station.theme.overlayClass} opacity-70`} />
+                      <span className="absolute right-2 top-2 rounded border border-shell/40 bg-night/65 px-2 py-1 text-[0.65rem] uppercase text-shell/85">
+                        {sourceLabel}
                       </span>
-                      <span className="shrink-0 rounded border border-shell/25 px-2 py-1 text-[0.68rem] uppercase text-shell/78">{sourceLabel}</span>
                     </span>
-                    <span className="mt-3 block text-sm leading-5 text-shell/84">{station.mood}</span>
-                    <span className="mt-2 block text-xs uppercase text-shell/56">{getStationStatus(station)}</span>
+                    <span className="block p-3">
+                      <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
+                      <span className="mt-1 block text-xs uppercase text-neon/85">{station.city}</span>
+                      <span className="mt-2 block text-sm leading-5 text-shell/84">{station.mood}</span>
+                      <span className="mt-2 block text-xs uppercase text-gold/70">{station.theme.label}</span>
+                    </span>
                   </button>
                 </li>
               );

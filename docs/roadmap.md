@@ -9,7 +9,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 - Users can start playback with a click or key press.
 - Player controls are clear, keyboard reachable, and stable on desktop and mobile.
 - Stations are configured as typed data, not hard-coded into UI components.
-- YouTube playback can be configured; unavailable sources show status and auto-skip to a bounded fallback path when the IFrame API reports a clear source failure.
+- YouTube playback uses the typed Elvis playlist stations; unavailable sources show status and auto-skip to a bounded fallback path when the IFrame API reports a clear source failure.
 - Utility features from lofi.cafe are adapted where useful: Pomodoro, shortcuts/help, low-power mode, share/source actions.
 - The app has basic CI, tests, metadata, PWA manifest, and documentation.
 
@@ -22,7 +22,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 2. **Player and Stations**
    - Complete typed station catalog.
    - Completed: typed source URL handling in station metadata.
-   - Completed: lightweight YouTube playlist/video embed integration through public env vars.
+   - Completed: lightweight YouTube playlist/video embed integration through typed station playlist/video IDs.
    - Completed: automatic skip fallback for clear YouTube unavailable/private/embed-blocked failures.
    - Still needed: richer YouTube player API controls.
 
@@ -48,7 +48,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 
 - Several workers may touch `components/elvis-cafe.tsx`; merge order matters.
 - Issue #17 resolved the provisional bundled display font by replacing it with `@fontsource/bebas-neue`, an `OFL-1.1` licensed npm package.
-- Real Elvis music should come from user-configured YouTube sources or licensed audio only.
+- Real Elvis music should come from curated YouTube playlist sources or licensed audio only.
 - YouTube embeds require user interaction before playback and must handle unavailable videos.
 
 ## Verification Before Release
