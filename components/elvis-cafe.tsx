@@ -345,7 +345,7 @@ export function ElvisCafe() {
         className={`object-cover transition duration-700 ${visualClass} ${isMotionEnabled ? "station-scene-motion" : ""}`}
       />
 
-      <div className={`absolute inset-0 ${activeStation.theme.overlayClass}`} />
+      <div className={`absolute inset-0 ${activeStation.theme.overlayClass} opacity-55`} />
       <div className="crt-overlay absolute inset-0" />
       <div className="noise-overlay absolute inset-0" />
       {isStarted && activeStation.source.type === "youtube" ? (
@@ -360,7 +360,7 @@ export function ElvisCafe() {
 
       <section className="relative z-10 flex min-h-dvh flex-col justify-between px-5 py-5 sm:px-8 sm:py-7" aria-hidden={isAboutOpen || isCatalogOpen}>
         <header className="flex items-start justify-between gap-4">
-          <div className="font-display text-sm uppercase tracking-normal text-shell drop-shadow-[0_0_8px_rgba(255,242,216,0.8)] sm:text-base">
+          <div className="font-display text-sm uppercase tracking-normal text-shell drop-shadow-[0_0_8px_rgba(212,188,156,0.8)] sm:text-base">
             listening now {listeningNow}
           </div>
 
@@ -375,9 +375,6 @@ export function ElvisCafe() {
                 ariaExpanded={isTimerOpen}
               >
                 <Clock3 size={18} />
-              </IconButton>
-              <IconButton label="Share station" onClick={() => void shareStation()}>
-                <Share2 size={18} />
               </IconButton>
               <IconButton label="Motion" onClick={() => setIsMotionEnabled((current) => !current)} active={isMotionEnabled} ariaPressed={isMotionEnabled}>
                 <Sparkles size={18} />
@@ -420,7 +417,7 @@ export function ElvisCafe() {
           <button
             type="button"
             onClick={start}
-            className="relative mx-auto mb-8 block min-h-12 rounded border border-shell/70 bg-night/35 px-5 py-3 font-display text-base uppercase text-shell shadow-neon backdrop-blur-sm transition hover:border-gold hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold"
+            className="relative mx-auto mb-8 block min-h-12 rounded bg-night/80 px-5 py-3 font-display text-base uppercase text-shell shadow-[0_0_28px_rgba(244,196,26,0.28)] backdrop-blur-sm transition hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold"
           >
             press any key to start
           </button>
@@ -440,6 +437,7 @@ export function ElvisCafe() {
             onPrevious={() => goToStation(-1)}
             onNext={() => goToStation(1)}
             onOpenStationCatalog={() => setIsCatalogOpen(true)}
+            onShareStation={() => void shareStation()}
             onToggleShuffle={() => setIsShuffled((current) => !current)}
             onVolumeChange={setVolume}
             onOpenSource={() => {
@@ -674,6 +672,7 @@ type PlayerDockProps = {
   onPrevious: () => void;
   onNext: () => void;
   onOpenStationCatalog: () => void;
+  onShareStation: () => void;
   onToggleShuffle: () => void;
   onVolumeChange: (value: number) => void;
   onOpenSource: () => void;
@@ -694,12 +693,13 @@ function PlayerDock({
   onPrevious,
   onNext,
   onOpenStationCatalog,
+  onShareStation,
   onToggleShuffle,
   onVolumeChange,
   onOpenSource,
 }: PlayerDockProps) {
   return (
-    <div className={`mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md p-3 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
+    <div className={`player-dock mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md p-3 backdrop-blur-md sm:grid-cols-[auto_minmax(10rem,1fr)_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
       <div className="flex items-center justify-center gap-2 sm:justify-start">
         <IconButton label="Previous station" onClick={onPrevious}>
           <SkipBack size={19} />
@@ -720,12 +720,9 @@ function PlayerDock({
         >
           <ListMusic size={18} />
         </IconButton>
-        <IconButton label={sourceUrl ? "Open original source" : "No source configured"} onClick={onOpenSource} disabled={!sourceUrl}>
-          <ExternalLink size={18} />
-        </IconButton>
       </div>
 
-      <div className="min-w-0 text-center sm:text-left" aria-live="polite" aria-atomic="true">
+      <div className="min-w-0 text-center" aria-live="polite" aria-atomic="true">
         <p className="font-display text-lg uppercase leading-tight text-gold sm:text-xl" data-testid="station-title">
           {stationTitle}
         </p>
@@ -741,19 +738,27 @@ function PlayerDock({
         )}
       </div>
 
-      <label className="flex min-h-10 items-center justify-center gap-2 text-shell/90 sm:justify-end">
-        <Volume2 size={18} />
-        <span className="sr-only">Volume</span>
-        <input
-          aria-label="Volume"
-          className="accent-gold"
-          type="range"
-          min="0"
-          max="100"
-          value={volume}
-          onChange={(event) => onVolumeChange(Number(event.target.value))}
-        />
-      </label>
+      <div className="flex min-h-10 items-center justify-center gap-2 text-shell/90 sm:justify-end">
+        <label className="flex items-center gap-2">
+          <Volume2 size={18} />
+          <span className="sr-only">Volume</span>
+          <input
+            aria-label="Volume"
+            className="w-28 accent-gold sm:w-32"
+            type="range"
+            min="0"
+            max="100"
+            value={volume}
+            onChange={(event) => onVolumeChange(Number(event.target.value))}
+          />
+        </label>
+        <IconButton label="Share station" onClick={onShareStation}>
+          <Share2 size={18} />
+        </IconButton>
+        <IconButton label={sourceUrl ? "Open original source" : "No source configured"} onClick={onOpenSource} disabled={!sourceUrl}>
+          <ExternalLink size={18} />
+        </IconButton>
+      </div>
     </div>
   );
 }
@@ -786,7 +791,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(function
       disabled={disabled}
       onClick={onClick}
       className={`grid size-10 place-items-center rounded border transition focus:outline-none focus:ring-2 focus:ring-gold disabled:cursor-not-allowed disabled:opacity-45 ${
-        emphasis ? "border-gold bg-gold text-night shadow-neon" : "border-shell/35 bg-night/55 text-shell hover:border-gold hover:text-gold"
+        emphasis ? "border-gold bg-gold text-night shadow-neon" : "border-shell/35 bg-night/78 text-shell hover:border-gold hover:text-gold"
       } ${active ? "border-neon text-neon shadow-neon" : ""}`}
     >
       {children}
@@ -926,22 +931,28 @@ function StationCatalogModal({
     <div
       id={id}
       ref={modalRef}
-      className="fixed inset-0 z-30 grid place-items-start bg-night/78 px-4 py-8 backdrop-blur-sm sm:px-8"
+      className="fixed inset-0 z-30 grid place-items-start bg-[rgba(48,24,31,0.92)] px-4 py-8 backdrop-blur-md sm:px-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       onKeyDown={onDialogKeyDown}
     >
-      <div className="mx-auto w-full max-w-6xl rounded-md border border-gold/45 bg-night/92 text-shell shadow-[0_0_44px_rgba(0,0,0,0.62)]">
-        <div className="flex items-start justify-between gap-4 border-b border-shell/15 p-4 sm:p-5">
+      <div className="mx-auto w-full max-w-6xl rounded-md bg-[rgba(48,24,31,0.96)] text-shell shadow-[0_0_70px_rgba(0,0,0,0.92)]">
+        <div className="flex items-start justify-between gap-4 p-4 sm:p-5">
           <div>
             <h2 id={titleId} className="font-display text-2xl uppercase text-gold">
               jukebox
             </h2>
           </div>
-          <IconButton ref={closeButtonRef} label="Close station catalog" onClick={onClose}>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            aria-label="Close station catalog"
+            onClick={onClose}
+            className="grid size-10 place-items-center rounded bg-night/70 text-shell shadow-[0_0_18px_rgba(244,196,26,0.18)] transition hover:text-gold focus:outline-none focus-visible:text-gold"
+          >
             <X size={18} />
-          </IconButton>
+          </button>
         </div>
 
         <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto p-3 sm:p-4">
@@ -956,25 +967,24 @@ function StationCatalogModal({
                     onClick={() => onSelectStation(station.id)}
                     aria-label={station.title}
                     aria-current={isActive ? "true" : undefined}
-                    className={`group grid h-full w-full grid-rows-[auto_1fr] overflow-hidden rounded-md border text-left transition focus:outline-none focus:ring-2 focus:ring-gold ${
+                    className={`group relative block aspect-[4/3] w-full overflow-hidden rounded-md text-left transition focus:outline-none focus:ring-2 focus:ring-gold ${
                       isActive
-                        ? "border-gold bg-gold/12 shadow-neon"
-                        : "border-shell/20 bg-night/48 hover:border-gold/75 hover:bg-shell/5"
+                        ? "shadow-[0_0_28px_rgba(244,100,138,0.58)]"
+                        : "shadow-[0_0_24px_rgba(0,0,0,0.55)] hover:shadow-[0_0_28px_rgba(244,196,26,0.28)]"
                     }`}
                   >
-                    <span className="relative block aspect-video overflow-hidden">
-                      <Image
-                        src={station.imageSrc}
-                        alt=""
-                        fill
-                        sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw"
-                        className="object-cover brightness-[0.78] saturate-[1.15] transition duration-300 group-hover:scale-[1.04]"
-                      />
-                      <span className={`absolute inset-0 ${station.theme.overlayClass} opacity-70`} />
-                    </span>
-                    <span className="block p-3">
+                    <Image
+                      src={station.imageSrc}
+                      alt=""
+                      fill
+                      sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover brightness-100 saturate-[1.12] transition duration-300 group-hover:scale-[1.04]"
+                    />
+                    <span className={`absolute inset-0 ${station.theme.overlayClass} opacity-25`} />
+                    <span className="absolute inset-0 bg-gradient-to-t from-night/92 via-night/26 to-transparent" />
+                    <span className="absolute inset-x-0 bottom-0 block p-4">
                       <span className="block font-display text-xl uppercase leading-tight text-gold">{station.title}</span>
-                      <span className="mt-1 block text-xs uppercase text-neon/85">{station.city}</span>
+                      <span className="mt-1 block text-xs uppercase text-neon/90">{station.city}</span>
                     </span>
                   </button>
                 </li>

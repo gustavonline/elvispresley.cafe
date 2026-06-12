@@ -18,7 +18,7 @@ body {
 
 body {
   margin: 0;
-  background: #09070b;
+  background: #5e303c;
   font-family: var(--font-inter);
 }
 
@@ -30,6 +30,24 @@ input {
 .station-scene-motion {
   animation: station-scene-drift 28s ease-in-out infinite alternate;
   transform-origin: center;
+}
+
+.player-dock button {
+  background: transparent !important;
+  border-color: transparent;
+  box-shadow: none !important;
+  color: #d4bc9c;
+}
+
+.player-dock button:hover {
+  border-color: transparent;
+  color: #f4c41a;
+}
+
+.player-dock button[aria-label="Play"],
+.player-dock button[aria-label="Pause"],
+.player-dock button[aria-pressed="true"] {
+  color: #f4c41a;
 }
 
 .crt-overlay {

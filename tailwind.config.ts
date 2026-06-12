@@ -9,18 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        night: "#09070b",
-        velvet: "#7a1022",
-        neon: "#23d7ff",
-        gold: "#f4c45f",
-        shell: "#fff2d8",
+        night: "#5e303c",
+        velvet: "#aa4c64",
+        neon: "#f4648a",
+        gold: "#f4c41a",
+        bronze: "#655414",
+        shell: "#d4bc9c",
       },
       fontFamily: {
         display: ['"Bebas Neue"', "Impact", "Arial Narrow", "sans-serif"],
         body: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        neon: "0 0 18px rgba(35, 215, 255, 0.75), 0 0 42px rgba(236, 72, 153, 0.35)",
+        neon: "0 0 18px rgba(244, 100, 138, 0.68), 0 0 42px rgba(244, 196, 26, 0.24)",
       },
     },
   },

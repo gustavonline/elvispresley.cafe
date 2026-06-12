@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A retro Elvis-inspired music cafe.",
     start_url: "/",
     display: "standalone",
-    background_color: "#09070b",
-    theme_color: "#09070b",
+    background_color: "#5e303c",
+    theme_color: "#5e303c",
     icons: [
       {
         src: "/icon.svg",
