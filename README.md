@@ -1,6 +1,6 @@
 # elvispresley.cafe
 
-A small Next.js demo for an Elvis-inspired music cafe: full-screen retro visuals, CRT treatment, minimal controls, and a station shell ready for a YouTube playlist integration.
+A small Vite + React + TanStack Router app for an Elvis-inspired music cafe: full-screen retro visuals, CRT treatment, minimal controls, and YouTube playlist-backed jukebox stations.
 
 ## Run
 
@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open the local URL printed by Vite, usually http://localhost:5173.
 
 ## Scripts
 
@@ -17,13 +17,16 @@ Open http://localhost:3000.
 npm run lint
 npm run test
 npm run build
+npm run preview
 ```
+
+The production app is static. `npm run build` writes `dist/`, and `npm run preview` serves that build locally for smoke testing before hosting.
 
 ## Music configuration
 
 Station data lives in `lib/stations.ts`. The jukebox includes five YouTube-backed Elvis stations: Greatest Hits, Christmas Elvis, On Tour, Elvis 101, and Love Songs. Each station carries its own scene, color treatment, and player glow so the room changes with the selected playlist.
 
-Open http://localhost:3000, start the cafe, and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the IFrame API reports a source as unavailable, private, invalid, or blocked from embedding, the app shows a concise fallback status and automatically skips to that station's `fallbackStationId`. If that fallback is missing or was already tried in the same auto-skip chain, the app moves to the next unattempted station instead. Auto-skip attempts are bounded to one pass through the station list so a broken set of YouTube sources cannot loop endlessly.
+Start the cafe and use the dock controls. Browser autoplay rules still require the initial user start gesture, and YouTube availability can vary by video, embedding policy, region, or network. When the IFrame API reports a source as unavailable, private, invalid, or blocked from embedding, the app shows a concise fallback status and automatically skips to that station's `fallbackStationId`. If that fallback is missing or was already tried in the same auto-skip chain, the app moves to the next unattempted station instead. Auto-skip attempts are bounded to one pass through the station list so a broken set of YouTube sources cannot loop endlessly.
 
 This fallback depends on errors surfaced by the YouTube IFrame API or API load failures. Some network stalls, regional restrictions, ad states, or normal video endings may not produce a reliable unavailable event, so they are reported through the player status line when possible instead of being guessed.
 

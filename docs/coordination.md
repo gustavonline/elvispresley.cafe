@@ -4,7 +4,7 @@ This file tracks the current direction for the MVP while multiple worktrees are 
 
 ## Current Baseline
 
-- Next.js App Router with TypeScript, Tailwind CSS, ESLint.
+- Vite + React with TanStack Router, TypeScript, Tailwind CSS, ESLint.
 - Full-screen Elvis-inspired music room.
 - Generated original station scenes wired through `Station.imageSrc`.
 - Local player shell with minimal station metadata, station picker, play/pause, previous/next, shuffle, volume, source, fullscreen, and About modal.
@@ -47,7 +47,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #19: Add station catalog drawer and station selection flow. Closed in main.
 - #20: Add station health fallback and auto-skip behavior. Closed in main.
 - #21: Add mobile viewport and touch-control polish pass.
-- #22: Prepare Vercel demo deployment and environment setup docs.
+- #22: Prepare static demo deployment and environment setup docs.
 - #23: Polish about/help overlay with credits, shortcuts, and source safety.
 - #24: Run lofi.cafe parity QA and close MVP gaps.
 - #25: Add ambient room SFX layer and mute control.

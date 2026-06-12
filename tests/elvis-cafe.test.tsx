@@ -4,10 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ElvisCafe } from "@/components/elvis-cafe";
 import { stations, type Station } from "@/lib/stations";
 
-vi.mock("next/image", () => ({
-  default: ({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => React.createElement("img", { alt, ...props }),
-}));
-
 const originalStations = [...stations];
 
 describe("ElvisCafe", () => {

@@ -1,0 +1,17 @@
+{
+  "name": "elvispresley.cafe",
+  "short_name": "Elvis Cafe",
+  "description": "A retro Elvis-inspired music cafe with playlist stations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#130d10",
+  "theme_color": "#130d10",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

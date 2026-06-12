@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import React from "react";
 import {
   Clock3,
@@ -45,6 +42,22 @@ const listenerSeed = 37;
 const timerDefaultSeconds = 25 * 60;
 const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
 let youtubeApiPromise: Promise<YouTubeApi> | undefined;
+
+type CafeImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
+  fill?: boolean;
+  priority?: boolean;
+};
+
+function CafeImage({ className, fill, priority, ...props }: CafeImageProps) {
+  return (
+    <img
+      {...props}
+      className={`${fill ? "absolute inset-0 h-full w-full " : ""}${className ?? ""}`}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+    />
+  );
+}
 
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) {
@@ -335,7 +348,7 @@ export function ElvisCafe() {
       className="relative min-h-dvh overflow-hidden bg-night text-shell"
       data-testid="elvis-cafe"
     >
-      <Image
+      <CafeImage
         src={activeStation.imageSrc}
         alt=""
         fill
@@ -973,7 +986,7 @@ function StationCatalogModal({
                         : "shadow-[0_0_24px_rgba(0,0,0,0.55)] hover:shadow-[0_0_28px_rgba(244,196,26,0.28)]"
                     }`}
                   >
-                    <Image
+                    <CafeImage
                       src={station.imageSrc}
                       alt=""
                       fill

@@ -1,6 +1,6 @@
 # Elvis.cafe Roadmap
 
-The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe, built with Next.js, TypeScript, Tailwind CSS, and a configurable YouTube-backed station model.
+The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe, built with Vite, React, TanStack Router, TypeScript, Tailwind CSS, and a configurable YouTube-backed station model.
 
 ## MVP Complete Means
 
@@ -16,7 +16,7 @@ The goal is a simple, polished Elvis-themed music web app inspired by lofi.cafe,
 ## Priority Tracks
 
 1. **Foundation**
-   - Completed: Next.js, TypeScript, Tailwind, lint/build, original visual shell.
+   - Completed: Vite, React, TanStack Router, TypeScript, Tailwind, lint/build, original visual shell.
    - Completed: CI and test command.
 
 2. **Player and Stations**
