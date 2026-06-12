@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [".next/**", "dist/**", "node_modules/**"],
+    ignores: [".next/**", "dist/**", "node_modules/**", "output/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -16,6 +16,16 @@ export default tseslint.config(
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...globals.node,
       },
     },
   },

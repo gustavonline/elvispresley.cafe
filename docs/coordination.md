@@ -53,7 +53,7 @@ Elvis.cafe should adapt the interaction model, not copy the assets or exact UI.
 - #25: Add ambient room SFX layer and mute control.
 - #26: Add cinematic scene transitions between stations.
 - #27: Add station seed data for Elvis-safe public playlists.
-- #28: Add screenshot regression and lofi parity QA script.
+- #28: Add screenshot regression and lofi parity QA script. Closed in main via `npm run qa:visual`.
 - #29: Generate dedicated AI scene sets for each Elvis station. Closed in main.
 - #30: Rotate multiple station images during playback and song changes.
 - #31: Explore lightweight animated scene loops for optional motion mode.
@@ -88,6 +88,7 @@ Run these before considering a merged slice complete:
 npm run lint
 npm run test
 npm run build
+npm run qa:visual
 npm audit --audit-level=moderate
 ```
 

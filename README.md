@@ -16,6 +16,7 @@ Open the local URL printed by Vite, usually http://localhost:5173.
 ```bash
 npm run lint
 npm run test
+npm run qa:visual
 npm run build
 npm run preview
 ```
@@ -43,11 +44,11 @@ Real Elvis music is embedded through YouTube or should come from licensed audio 
 - PWA manifest and persistent safe preferences.
 - CI workflow for install, lint, test, build, and audit.
 
-## Visual asset
+## Visual assets
 
-`public/images/elvis-cafe-stage.png` was generated as an original project asset with this prompt:
+The five station backgrounds in `public/images/station-*.png` are original generated project assets. They use the Elvis groovy palette as scene lighting and decor, while avoiding Elvis Presley likenesses, celebrity faces, logos, readable text, copied lofi.cafe assets, and copyrighted poster art.
 
-> Create an original retro rock-and-roll cafe background inspired by 1950s Memphis and neon Las Vegas, suitable for an Elvis-themed music listening app. Do not depict Elvis Presley directly and do not include a recognizable celebrity face. Nighttime stage cafe with a vintage jukebox, gold microphone stand, red velvet curtains, blue and pink neon signs, subtle Memphis street/cafe details, warm spotlights, polished checkerboard floor, distant marquee lights. High-quality pixel-art / retro game background, cinematic, atmospheric, rich but not cluttered, full-bleed 16:9 composition, darker edges for UI readability. No readable text, no logos, no watermark.
+Prompt details and asset provenance live in `docs/visual-assets.md`.
 
 ## Font licensing
 
