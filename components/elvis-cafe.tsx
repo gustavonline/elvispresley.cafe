@@ -1100,6 +1100,9 @@ function AboutModal({
           A small retro music room for Elvis-inspired stations. The room uses curated playlist stations and original visual scenes
           without bundling copyrighted audio.
         </p>
+        <p className="mt-3 text-xs uppercase leading-5 text-shell/62">
+          Visuals: original generated scenes. Music: YouTube playlist embeds and source links.
+        </p>
         <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
           {shortcuts.map(([key, label]) => (
             <div key={key} className="contents">
