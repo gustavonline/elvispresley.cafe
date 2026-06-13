@@ -55,10 +55,22 @@ type CafeImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
   priority?: boolean;
 };
 
+function getPublicAssetSrc(src: React.ImgHTMLAttributes<HTMLImageElement>["src"]) {
+  if (typeof src !== "string" || !src.startsWith("/")) {
+    return src;
+  }
+
+  const baseUrl = import.meta.env.BASE_URL || "/";
+  const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+
+  return `${normalizedBaseUrl}${src}`;
+}
+
 function CafeImage({ className, fill, priority, ...props }: CafeImageProps) {
   return (
     <img
       {...props}
+      src={getPublicAssetSrc(props.src)}
       className={`${fill ? "absolute inset-0 h-full w-full " : ""}${className ?? ""}`}
       loading={priority ? "eager" : "lazy"}
       decoding="async"

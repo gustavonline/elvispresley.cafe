@@ -1,5 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="10" fill="#09070b"/>
-  <circle cx="32" cy="32" r="22" fill="none" stroke="#f4c45f" stroke-width="4"/>
-  <path d="M22 44V18h19v6H30v4h10v6H30v4h12v6H22Z" fill="#23d7ff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">elvispresley.cafe jukebox icon</title>
+  <defs>
+    <linearGradient id="cabinet" x1="96" x2="416" y1="76" y2="452" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5e303c"/>
+      <stop offset="0.54" stop-color="#aa4c64"/>
+      <stop offset="1" stop-color="#655414"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="22%" r="62%">
+      <stop offset="0" stop-color="#f4c41a" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#f4648a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#5e303c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#130d10"/>
+  <circle cx="256" cy="172" r="178" fill="url(#glow)"/>
+  <path d="M122 422V208c0-96 60-154 134-154s134 58 134 154v214c0 28-18 46-46 46H168c-28 0-46-18-46-46Z" fill="url(#cabinet)"/>
+  <path d="M158 219c0-72 42-116 98-116s98 44 98 116v14H158v-14Z" fill="#130d10" opacity="0.72"/>
+  <path d="M182 215c0-54 31-86 74-86s74 32 74 86v2H182v-2Z" fill="#d4bc9c"/>
+  <path d="M202 209c0-37 22-60 54-60s54 23 54 60H202Z" fill="#f4c41a"/>
+  <path d="M169 271h174v42H169v-42Z" fill="#130d10" opacity="0.78"/>
+  <path d="M192 292h128" stroke="#f4c41a" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="207" cy="371" r="34" fill="#f4c41a"/>
+  <circle cx="305" cy="371" r="34" fill="#f4648a"/>
+  <path d="M207 345v52m98-52v52" stroke="#130d10" stroke-width="12" stroke-linecap="round" opacity="0.72"/>
+  <path d="M158 434h196" stroke="#d4bc9c" stroke-width="22" stroke-linecap="round"/>
+  <path d="M136 424V209c0-84 52-139 120-139s120 55 120 139v215" fill="none" stroke="#f4c41a" stroke-width="18" stroke-linecap="round"/>
+  <path d="M256 72v398" stroke="#d4bc9c" stroke-width="10" stroke-linecap="round" opacity="0.38"/>
+  <path d="M147 446h218" stroke="#130d10" stroke-width="14" stroke-linecap="round" opacity="0.55"/>
 </svg>

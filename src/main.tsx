@@ -16,8 +16,14 @@ const indexRoute = createRoute({
   component: ElvisCafe,
 });
 
+function getRouterBasepath() {
+  const baseUrl = import.meta.env.BASE_URL || "/";
+
+  return baseUrl === "/" ? "/" : baseUrl.replace(/\/$/, "");
+}
+
 const routeTree = rootRoute.addChildren([indexRoute]);
-const router = createRouter({ routeTree });
+const router = createRouter({ routeTree, basepath: getRouterBasepath() });
 
 declare module "@tanstack/react-router" {
   interface Register {
