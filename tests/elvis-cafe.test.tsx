@@ -184,6 +184,8 @@ describe("ElvisCafe", () => {
       expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
     });
     expect(screen.getByTestId("station-status")).toHaveTextContent("source unavailable - switched to Greatest Hits");
-    expect(Player).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(Player).toHaveBeenCalledTimes(2);
+    });
   });
 });

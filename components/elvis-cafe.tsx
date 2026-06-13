@@ -45,6 +45,11 @@ const sceneRotationMs = 45 * 1000;
 const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
 let youtubeApiPromise: Promise<YouTubeApi> | undefined;
 
+type YouTubePlayerControls = {
+  pause: () => void;
+  play: () => void;
+};
+
 type CafeImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
   fill?: boolean;
   priority?: boolean;
@@ -114,6 +119,7 @@ export function ElvisCafe() {
   const catalogButtonRef = useRef<HTMLButtonElement>(null);
   const timerButtonRef = useRef<HTMLButtonElement>(null);
   const sceneSrcRef = useRef(stations[0].imageSrc);
+  const youtubeControlsRef = useRef<YouTubePlayerControls | null>(null);
   const catalogDrawerId = useId();
   const autoFallbackAttemptedStationIdsRef = useRef<Set<string>>(new Set());
   const timerPanelId = useId();
@@ -150,14 +156,23 @@ export function ElvisCafe() {
       return;
     }
 
-    setIsPlaying((current) => !current);
-  }, [isStarted, start]);
+    const nextIsPlaying = !isPlaying;
+
+    if (nextIsPlaying) {
+      youtubeControlsRef.current?.play();
+    } else {
+      youtubeControlsRef.current?.pause();
+    }
+
+    setIsPlaying(nextIsPlaying);
+  }, [isPlaying, isStarted, start]);
 
   const goToStation = useCallback(
     (direction: 1 | -1) => {
       setShareStatus(undefined);
       setStationFallbackStatus(undefined);
       setYoutubePlayerStatus("idle");
+      youtubeControlsRef.current = null;
       autoFallbackAttemptedStationIdsRef.current.clear();
       setStationIndex((current) => {
         if (isShuffled) {
@@ -180,6 +195,7 @@ export function ElvisCafe() {
     setShareStatus(undefined);
     setStationFallbackStatus(undefined);
     setYoutubePlayerStatus("idle");
+    youtubeControlsRef.current = null;
     autoFallbackAttemptedStationIdsRef.current.clear();
     setStationIndex(nextStationIndex);
     setIsCatalogOpen(false);
@@ -206,6 +222,10 @@ export function ElvisCafe() {
       setShareStatus("share unavailable");
     }
   }, [activeStation.title]);
+
+  const handleYouTubeControlsChange = useCallback((controls: YouTubePlayerControls | null) => {
+    youtubeControlsRef.current = controls;
+  }, []);
 
   useEffect(() => {
     const preferences = loadPreferences();
@@ -263,6 +283,15 @@ export function ElvisCafe() {
     if (youtubePlayerStatus === "playing" || youtubePlayerStatus === "ready") {
       setStationFallbackStatus(undefined);
     }
+
+    if (youtubePlayerStatus === "playing") {
+      setIsPlaying(true);
+      return;
+    }
+
+    if (youtubePlayerStatus === "paused" || youtubePlayerStatus === "ended") {
+      setIsPlaying(false);
+    }
   }, [youtubePlayerStatus]);
 
   useEffect(() => {
@@ -282,11 +311,13 @@ export function ElvisCafe() {
 
     if (!fallbackPlan) {
       setStationFallbackStatus("source unavailable - no fallback left");
+      setIsPlaying(false);
       return;
     }
 
     setStationFallbackStatus(fallbackPlan.message);
     setYoutubePlayerStatus("idle");
+    setIsPlaying(true);
     setStationIndex(fallbackPlan.stationIndex);
   }, [activeStation.id, activeStation.source.type, isStarted, stationIndex, youtubePlayerStatus]);
 
@@ -416,10 +447,12 @@ export function ElvisCafe() {
       <div className="noise-overlay absolute inset-0 z-[4]" />
       {isStarted && activeStation.source.type === "youtube" ? (
         <YouTubePlayerHost
+          key={activeStation.id}
           isPlaying={isPlaying}
           source={activeStation.source}
           title={`${activeStation.title} YouTube source`}
           volume={volume}
+          onControlsChange={handleYouTubeControlsChange}
           onStatusChange={setYoutubePlayerStatus}
         />
       ) : null}
@@ -624,15 +657,16 @@ type YouTubePlayerHostProps = {
   source: Extract<StationSource, { type: "youtube" }>;
   title: string;
   volume: number;
+  onControlsChange: (controls: YouTubePlayerControls | null) => void;
   onStatusChange: (status: YouTubePlayerStatus) => void;
 };
 
-function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }: YouTubePlayerHostProps) {
+function YouTubePlayerHost({ isPlaying, source, title, volume, onControlsChange, onStatusChange }: YouTubePlayerHostProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const isPlayingRef = useRef(isPlaying);
   const volumeRef = useRef(volume);
-  const embedUrl = getYouTubeEmbedUrl(source);
+  const embedUrl = getYouTubeEmbedUrl(source, typeof window === "undefined" ? undefined : window.location.origin);
 
   useEffect(() => {
     isPlayingRef.current = isPlaying;
@@ -644,6 +678,12 @@ function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }:
 
   useEffect(() => {
     let isCancelled = false;
+    let createdPlayer: YouTubePlayer | null = null;
+    const setStatus = (status: YouTubePlayerStatus) => {
+      if (!isCancelled) {
+        onStatusChange(status);
+      }
+    };
     const videoId = getYouTubeEmbedVideoId(source);
 
     if (!videoId) {
@@ -664,7 +704,16 @@ function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }:
           playerVars: getYouTubePlayerVars(source, window.location.origin),
           events: {
             onReady: (event) => {
+              if (isCancelled) {
+                return;
+              }
+
+              createdPlayer = event.target;
               playerRef.current = event.target;
+              onControlsChange({
+                pause: () => event.target.pauseVideo(),
+                play: () => event.target.playVideo(),
+              });
               event.target.setVolume(normalizeYouTubeVolume(volumeRef.current));
 
               if (isPlayingRef.current) {
@@ -673,23 +722,27 @@ function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }:
                 event.target.pauseVideo();
               }
 
-              onStatusChange("ready");
+              setStatus("ready");
             },
-            onStateChange: (event) => onStatusChange(mapYouTubePlayerState(event.data)),
-            onError: () => onStatusChange("unavailable"),
+            onStateChange: (event) => setStatus(mapYouTubePlayerState(event.data)),
+            onError: () => setStatus("unavailable"),
           },
         });
 
+        createdPlayer = player;
         playerRef.current = player;
       })
-      .catch(() => onStatusChange("unavailable"));
+      .catch(() => setStatus("unavailable"));
 
     return () => {
       isCancelled = true;
-      playerRef.current?.destroy();
-      playerRef.current = null;
+      createdPlayer?.destroy();
+      if (playerRef.current === createdPlayer) {
+        playerRef.current = null;
+      }
+      onControlsChange(null);
     };
-  }, [onStatusChange, source, source.youtubePlaylistId, source.youtubeVideoId]);
+  }, [onControlsChange, onStatusChange, source, source.youtubePlaylistId, source.youtubeVideoId]);
 
   useEffect(() => {
     playerRef.current?.setVolume(normalizeYouTubeVolume(volume));
@@ -709,14 +762,14 @@ function YouTubePlayerHost({ isPlaying, source, title, volume, onStatusChange }:
   }, [isPlaying]);
 
   return (
-    <div className="pointer-events-none absolute bottom-0 left-0 size-px overflow-hidden opacity-0" aria-hidden="true">
+    <div className="youtube-player-host" aria-hidden="true">
       {embedUrl ? (
         <iframe
           ref={iframeRef}
           title={title}
           src={embedUrl}
           allow="autoplay; encrypted-media; picture-in-picture"
-          className="size-px"
+          className="h-[200px] w-[200px]"
         />
       ) : null}
     </div>

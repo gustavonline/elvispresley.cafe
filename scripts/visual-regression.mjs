@@ -4,7 +4,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 
 const port = Number(process.env.VISUAL_QA_PORT ?? 4177);
-const baseUrl = `http://127.0.0.1:${port}`;
+const baseUrl = `http://localhost:${port}`;
 const outputDir = path.resolve("output/visual-regression");
 
 function startServer() {
