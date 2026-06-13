@@ -6,6 +6,10 @@ The app is a Vite + React + TanStack Router static build. It does not require a 
 
 Use GitHub Pages with GitHub Actions for the first free deployment. Vite needs a build step, so the workflow in `.github/workflows/deploy-pages.yml` builds `dist/` and deploys that artifact to Pages.
 
+Current temporary URL before a custom domain is connected:
+
+- https://gustavonline.github.io/elvispresley.cafe/
+
 Sources:
 
 - GitHub Pages custom workflows: https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
