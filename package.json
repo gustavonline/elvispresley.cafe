@@ -6,6 +6,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "presence:deploy": "npx wrangler deploy --config workers/presence/wrangler.jsonc",
+    "presence:dry-run": "npx wrangler deploy --config workers/presence/wrangler.jsonc --dry-run",
+    "presence:dev": "npx wrangler dev --config workers/presence/wrangler.jsonc",
     "preview": "vite preview",
     "qa:visual": "node scripts/visual-regression.mjs",
     "test": "vitest run"

@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "elvis-cafe-presence",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-01",
+  "vars": {
+    "ALLOWED_ORIGINS": "https://gustavonline.github.io,https://elvispresley.cafe"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PRESENCE_ROOM",
+        "class_name": "PresenceRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["PresenceRoom"]
+    }
+  ]
+}

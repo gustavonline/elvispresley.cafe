@@ -15,6 +15,8 @@ describe("ElvisCafe", () => {
     cleanup();
     stations.splice(0, stations.length, ...originalStations);
     delete window.YT;
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     vi.useRealTimers();
   });
 
@@ -38,6 +40,39 @@ describe("ElvisCafe", () => {
     fireEvent.pointerDown(screen.getByTestId("elvis-cafe"), { button: 0 });
 
     expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
+  });
+
+  it("shows unavailable listeners when no presence endpoint is configured", () => {
+    render(<ElvisCafe />);
+
+    expect(screen.getByText(/listening now live listeners unavailable/i)).toBeInTheDocument();
+  });
+
+  it("renders a real listener count from the presence endpoint", async () => {
+    vi.stubEnv("VITE_PRESENCE_ENDPOINT", "https://presence.example");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      const count = init?.method === "POST" ? 8 : 7;
+
+      return new Response(JSON.stringify({ count, stationCounts: { "greatest-hits": count } }), {
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+    });
+
+    render(<ElvisCafe />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/listening now 7 listeners/i)).toBeInTheDocument();
+    });
+
+    fireEvent.pointerDown(screen.getByTestId("elvis-cafe"), { button: 0 });
+
+    await waitFor(() => {
+      expect(screen.getByText(/listening now 8 listeners/i)).toBeInTheDocument();
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith("https://presence.example/presence", expect.objectContaining({ method: "POST" }));
   });
 
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {

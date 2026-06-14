@@ -29,4 +29,14 @@ export default tseslint.config(
       },
     },
   },
+  {
+    files: ["workers/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.serviceworker,
+        DurableObject: "readonly",
+      },
+    },
+  },
 );

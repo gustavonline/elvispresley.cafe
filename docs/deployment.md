@@ -33,9 +33,98 @@ The production output is written to `dist/`.
 3. Under Build and deployment, set Source to GitHub Actions.
 4. Run the `Deploy GitHub Pages` workflow, or push to `main`.
 5. If you use the default project URL, the app will be served from `https://<user>.github.io/elvispresley.cafe/`; the workflow already builds with `VITE_BASE_PATH=/elvispresley.cafe/`.
-6. If you connect the custom domain `elvispresley.cafe`, add a repository variable named `VITE_BASE_PATH` with the value `/`, then rerun the workflow.
+6. If the Cloudflare presence worker is deployed, add a repository variable named `VITE_PRESENCE_ENDPOINT` with the worker URL, for example `https://elvis-cafe-presence.<your-workers-subdomain>.workers.dev/presence`.
+7. If you connect the custom domain `elvispresley.cafe`, add a repository variable named `VITE_BASE_PATH` with the value `/`, then rerun the workflow.
 
 Do not add a `CNAME` file until the domain is configured in GitHub Pages settings and DNS is pointing at GitHub Pages.
+
+## Live Listener Count
+
+The live listener count uses a small Cloudflare Worker with a Durable Object. GitHub Pages still hosts the frontend; the Worker only stores anonymous active listening sessions.
+
+Why this exists:
+
+- GitHub Pages is static and cannot count active browsers by itself.
+- The YouTube iframe player does not expose real-time embedded playlist listener counts.
+- The app should not show simulated listener numbers.
+
+Cloudflare references:
+
+- Wrangler deploy command: https://developers.cloudflare.com/workers/wrangler/commands/#deploy
+- Durable Objects overview: https://developers.cloudflare.com/durable-objects/
+- Durable Objects Wrangler configuration and migrations: https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/
+
+### Deploy The Presence Worker
+
+1. Create or log in to a Cloudflare account.
+2. Authenticate Wrangler:
+
+```bash
+npx wrangler login
+```
+
+3. Dry-run the Worker build:
+
+```bash
+npm run presence:dry-run
+```
+
+4. Deploy the Worker:
+
+```bash
+npm run presence:deploy
+```
+
+5. Note the deployed `workers.dev` URL printed by Wrangler.
+6. In GitHub, open the repository settings, then Actions, then Variables.
+7. Add this repository variable:
+
+```text
+VITE_PRESENCE_ENDPOINT=https://elvis-cafe-presence.<your-workers-subdomain>.workers.dev/presence
+```
+
+8. Rerun the `Deploy GitHub Pages` workflow.
+
+### CORS
+
+The Worker allows these origins by default:
+
+- `https://gustavonline.github.io`
+- `https://elvispresley.cafe`
+
+To change this, edit `workers/presence/wrangler.jsonc`:
+
+```json
+"vars": {
+  "ALLOWED_ORIGINS": "https://gustavonline.github.io,https://elvispresley.cafe"
+}
+```
+
+The value is a comma-separated list of origins, not full paths. For the current GitHub Pages URL, the origin is `https://gustavonline.github.io`, even though the app path is `/elvispresley.cafe/`.
+
+### Local Worker Development
+
+Run the Worker locally:
+
+```bash
+npm run presence:dev
+```
+
+Then run the frontend with a local endpoint:
+
+```bash
+VITE_PRESENCE_ENDPOINT=http://127.0.0.1:8787/presence npm run dev
+```
+
+### Privacy
+
+The Worker stores only:
+
+- anonymous browser session id
+- active station id
+- expiry timestamp
+
+Sessions expire after roughly 90 seconds without a heartbeat.
 
 ## Custom Domain DNS
 

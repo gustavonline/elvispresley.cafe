@@ -16,6 +16,13 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  fetchPresenceSnapshot,
+  getPresenceEndpoint,
+  getPresenceSessionId,
+  sendPresenceDeparture,
+  sendPresenceHeartbeat,
+} from "@/lib/presence";
 import { defaultPreferences, loadPreferences, savePreferences } from "@/lib/preferences";
 import {
   getStationFallbackPlan,
@@ -43,6 +50,8 @@ const timerDefaultWorkMinutes = 25;
 const timerDefaultBreakMinutes = 5;
 const sceneRotationMs = 45 * 1000;
 const startSceneRotationMs = 12 * 1000;
+const presenceRefreshMs = 15 * 1000;
+const presenceHeartbeatMs = 25 * 1000;
 const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
 const startSceneSrcs = [
   "/images/station-greatest-hits.png",
@@ -140,6 +149,8 @@ export function ElvisCafe() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [disabledShortcuts, setDisabledShortcuts] = useState(defaultPreferences.disabledShortcuts);
   const [isMotionEnabled, setIsMotionEnabled] = useState(defaultPreferences.isMotionEnabled);
+  const [presenceStatus, setPresenceStatus] = useState<"loading" | "ready" | "unavailable">("loading");
+  const [liveListenerCount, setLiveListenerCount] = useState<number | undefined>();
   const [shareStatus, setShareStatus] = useState<string | undefined>();
   const [stationFallbackStatus, setStationFallbackStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
@@ -165,7 +176,12 @@ export function ElvisCafe() {
   const currentSceneSrc = isStarted ? activeSceneSrc : activeStartSceneSrc;
   const [displayedSceneSrc, setDisplayedSceneSrc] = useState(startSceneSrcs[0]);
   const [previousSceneSrc, setPreviousSceneSrc] = useState<string | undefined>();
-  const liveStatus = "live listeners unavailable";
+  const presenceEndpoint = useMemo(() => getPresenceEndpoint(), []);
+  const presenceSessionId = useMemo(() => getPresenceSessionId(), []);
+  const liveStatus =
+    presenceStatus === "ready" && liveListenerCount !== undefined
+      ? `${liveListenerCount} ${liveListenerCount === 1 ? "listener" : "listeners"}`
+      : "live listeners unavailable";
 
   const start = useCallback(() => {
     if (sceneSrcRef.current !== activeStation.imageSrc) {
@@ -275,6 +291,106 @@ export function ElvisCafe() {
     setIsMotionEnabled(preferences.isMotionEnabled);
     setVolume(preferences.volume);
   }, []);
+
+  useEffect(() => {
+    if (!presenceEndpoint) {
+      setPresenceStatus("unavailable");
+      return undefined;
+    }
+
+    let isCancelled = false;
+    let controller: AbortController | undefined;
+
+    const refreshPresence = async () => {
+      controller?.abort();
+      controller = new AbortController();
+
+      try {
+        const snapshot = await fetchPresenceSnapshot(presenceEndpoint, controller.signal);
+
+        if (!isCancelled) {
+          setLiveListenerCount(snapshot.count);
+          setPresenceStatus("ready");
+        }
+      } catch {
+        if (!isCancelled) {
+          setLiveListenerCount(undefined);
+          setPresenceStatus("unavailable");
+        }
+      }
+    };
+
+    void refreshPresence();
+    const intervalId = window.setInterval(() => {
+      void refreshPresence();
+    }, presenceRefreshMs);
+
+    return () => {
+      isCancelled = true;
+      controller?.abort();
+      window.clearInterval(intervalId);
+    };
+  }, [presenceEndpoint]);
+
+  useEffect(() => {
+    if (!presenceEndpoint || !isStarted) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+    let controller: AbortController | undefined;
+
+    const heartbeat = async () => {
+      controller?.abort();
+      controller = new AbortController();
+
+      try {
+        const snapshot = await sendPresenceHeartbeat(
+          presenceEndpoint,
+          {
+            isListening: isStarted && isPlaying,
+            sessionId: presenceSessionId,
+            stationId: activeStation.id,
+          },
+          controller.signal,
+        );
+
+        if (!isCancelled) {
+          setLiveListenerCount(snapshot.count);
+          setPresenceStatus("ready");
+        }
+      } catch {
+        if (!isCancelled) {
+          setLiveListenerCount(undefined);
+          setPresenceStatus("unavailable");
+        }
+      }
+    };
+
+    void heartbeat();
+    const intervalId = window.setInterval(() => {
+      void heartbeat();
+    }, presenceHeartbeatMs);
+
+    return () => {
+      isCancelled = true;
+      controller?.abort();
+      window.clearInterval(intervalId);
+    };
+  }, [activeStation.id, isPlaying, isStarted, presenceEndpoint, presenceSessionId]);
+
+  useEffect(() => {
+    if (!presenceEndpoint) {
+      return undefined;
+    }
+
+    const onPageHide = () => {
+      sendPresenceDeparture(presenceEndpoint, presenceSessionId, activeStation.id);
+    };
+
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, [activeStation.id, presenceEndpoint, presenceSessionId]);
 
   useEffect(() => {
     savePreferences({
