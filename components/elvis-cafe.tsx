@@ -119,14 +119,6 @@ function getFocusableElements(container: HTMLElement) {
   ).filter((element) => !element.hasAttribute("aria-hidden"));
 }
 
-function formatLocalTime(date: Date) {
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    hour12: false,
-    minute: "2-digit",
-  }).format(date);
-}
-
 function clampMinutes(value: number) {
   return Math.min(60, Math.max(1, Math.round(value)));
 }
@@ -148,7 +140,6 @@ export function ElvisCafe() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [disabledShortcuts, setDisabledShortcuts] = useState(defaultPreferences.disabledShortcuts);
   const [isMotionEnabled, setIsMotionEnabled] = useState(defaultPreferences.isMotionEnabled);
-  const [now, setNow] = useState(() => new Date());
   const [shareStatus, setShareStatus] = useState<string | undefined>();
   const [stationFallbackStatus, setStationFallbackStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
@@ -174,7 +165,7 @@ export function ElvisCafe() {
   const currentSceneSrc = isStarted ? activeSceneSrc : activeStartSceneSrc;
   const [displayedSceneSrc, setDisplayedSceneSrc] = useState(startSceneSrcs[0]);
   const [previousSceneSrc, setPreviousSceneSrc] = useState<string | undefined>();
-  const liveStatus = `${isStarted ? activeStation.title : "RCA jukebox"} / ${formatLocalTime(now)}`;
+  const liveStatus = "live listeners unavailable";
 
   const start = useCallback(() => {
     if (sceneSrcRef.current !== activeStation.imageSrc) {
@@ -267,6 +258,17 @@ export function ElvisCafe() {
     youtubeControlsRef.current = controls;
   }, []);
 
+  const startFromSceneClick = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (isStarted || event.button !== 0 || isInteractiveTarget(event.target)) {
+        return;
+      }
+
+      start();
+    },
+    [isStarted, start],
+  );
+
   useEffect(() => {
     const preferences = loadPreferences();
     setDisabledShortcuts(preferences.disabledShortcuts);
@@ -334,14 +336,6 @@ export function ElvisCafe() {
 
     return () => window.clearInterval(intervalId);
   }, [activeSceneSrcs.length, isMotionEnabled, isPlaying, isStarted]);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setNow(new Date());
-    }, 30 * 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
 
   useEffect(() => {
     if (youtubePlayerStatus === "playing" || youtubePlayerStatus === "ready") {
@@ -482,8 +476,9 @@ export function ElvisCafe() {
 
   return (
     <main
-      className="relative min-h-dvh overflow-hidden bg-night text-shell"
+      className={`relative min-h-dvh overflow-hidden bg-night text-shell ${isStarted ? "" : "cursor-pointer"}`}
       data-testid="elvis-cafe"
+      onPointerDown={startFromSceneClick}
     >
       <CafeImage
         src={displayedSceneSrc}

@@ -115,25 +115,6 @@ input {
   animation: start-button-float 4.8s ease-in-out infinite, start-button-glow 2.8s ease-in-out infinite alternate;
 }
 
-.start-button::before,
-.start-button::after {
-  pointer-events: none;
-  content: "";
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(244, 196, 26, 0.8), transparent);
-}
-
-.start-button::before {
-  top: 0.42rem;
-}
-
-.start-button::after {
-  bottom: 0.42rem;
-}
-
 .crt-overlay {
   pointer-events: none;
   background:

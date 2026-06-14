@@ -32,6 +32,14 @@ describe("ElvisCafe", () => {
     expect(screen.getByTestId("station-scene")).toHaveAttribute("src", "/images/station-christmas-elvis.png");
   });
 
+  it("starts the player when the scene is clicked", () => {
+    render(<ElvisCafe />);
+
+    fireEvent.pointerDown(screen.getByTestId("elvis-cafe"), { button: 0 });
+
+    expect(screen.getByTestId("station-title")).toHaveTextContent("Greatest Hits");
+  });
+
   it("keeps hidden tool controls out of the pre-start keyboard path", () => {
     render(<ElvisCafe />);
 
