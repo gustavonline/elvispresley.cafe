@@ -64,7 +64,7 @@ async function runViewport(browser, viewportName, viewport) {
   await page.reload({ waitUntil: "networkidle" });
   await page.screenshot({ path: path.join(outputDir, `${viewportName}-start.png`), fullPage: true });
 
-  await page.getByRole("button", { name: /press any key to start/i }).click();
+  await page.getByRole("button", { name: /press any key to start/i }).click({ force: true });
   await page.screenshot({ path: path.join(outputDir, `${viewportName}-player.png`), fullPage: true });
 
   await page.getByRole("button", { name: /pomodoro timer/i }).click();

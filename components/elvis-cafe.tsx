@@ -4,7 +4,6 @@ import {
   ExternalLink,
   Heart,
   ListMusic,
-  Maximize2,
   Pause,
   Play,
   RotateCcw,
@@ -39,10 +38,19 @@ import {
   type YouTubePlayerStatus,
 } from "@/lib/youtube";
 
-const listenerSeed = 37;
 const timerDefaultSeconds = 25 * 60;
+const timerDefaultWorkMinutes = 25;
+const timerDefaultBreakMinutes = 5;
 const sceneRotationMs = 45 * 1000;
+const startSceneRotationMs = 12 * 1000;
 const nonStarterKeys = new Set(["Alt", "CapsLock", "Control", "Escape", "Meta", "Shift", "Tab"]);
+const startSceneSrcs = [
+  "/images/station-greatest-hits.png",
+  "/images/elvis-cafe-stage.png",
+  "/images/elvis-cafe-vegas-jukebox.jpg",
+  "/images/elvis-cafe-sun-studio.jpg",
+  "/images/elvis-cafe-graceland-lounge.jpg",
+];
 let youtubeApiPromise: Promise<YouTubeApi> | undefined;
 
 type YouTubePlayerControls = {
@@ -111,6 +119,18 @@ function getFocusableElements(container: HTMLElement) {
   ).filter((element) => !element.hasAttribute("aria-hidden"));
 }
 
+function formatLocalTime(date: Date) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    hour12: false,
+    minute: "2-digit",
+  }).format(date);
+}
+
+function clampMinutes(value: number) {
+  return Math.min(60, Math.max(1, Math.round(value)));
+}
+
 export function ElvisCafe() {
   const [isStarted, setIsStarted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -121,16 +141,21 @@ export function ElvisCafe() {
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(timerDefaultSeconds);
+  const [timerMode, setTimerMode] = useState<"focus" | "break">("focus");
+  const [workMinutes, setWorkMinutes] = useState(timerDefaultWorkMinutes);
+  const [breakMinutes, setBreakMinutes] = useState(timerDefaultBreakMinutes);
+  const [completedFocusSessions, setCompletedFocusSessions] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [disabledShortcuts, setDisabledShortcuts] = useState(defaultPreferences.disabledShortcuts);
   const [isMotionEnabled, setIsMotionEnabled] = useState(defaultPreferences.isMotionEnabled);
+  const [now, setNow] = useState(() => new Date());
   const [shareStatus, setShareStatus] = useState<string | undefined>();
   const [stationFallbackStatus, setStationFallbackStatus] = useState<string | undefined>();
   const [youtubePlayerStatus, setYoutubePlayerStatus] = useState<YouTubePlayerStatus>("idle");
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
   const catalogButtonRef = useRef<HTMLButtonElement>(null);
   const timerButtonRef = useRef<HTMLButtonElement>(null);
-  const sceneSrcRef = useRef(stations[0].imageSrc);
+  const sceneSrcRef = useRef(startSceneSrcs[0]);
   const youtubeControlsRef = useRef<YouTubePlayerControls | null>(null);
   const catalogDrawerId = useId();
   const autoFallbackAttemptedStationIdsRef = useRef<Set<string>>(new Set());
@@ -141,26 +166,29 @@ export function ElvisCafe() {
   const sourceUrl = getStationSourceUrl(activeStation);
   const stationStatus = getStationStatus(activeStation);
   const playerStatus = shareStatus ?? stationFallbackStatus;
+  const [startSceneIndex, setStartSceneIndex] = useState(0);
   const [sceneVariantIndex, setSceneVariantIndex] = useState(0);
   const activeSceneSrcs = useMemo(() => getStationSceneSrcs(activeStation), [activeStation]);
   const activeSceneSrc = activeSceneSrcs[sceneVariantIndex % activeSceneSrcs.length] ?? activeStation.imageSrc;
-  const [displayedSceneSrc, setDisplayedSceneSrc] = useState(activeStation.imageSrc);
+  const activeStartSceneSrc = startSceneSrcs[startSceneIndex % startSceneSrcs.length] ?? startSceneSrcs[0];
+  const currentSceneSrc = isStarted ? activeSceneSrc : activeStartSceneSrc;
+  const [displayedSceneSrc, setDisplayedSceneSrc] = useState(startSceneSrcs[0]);
   const [previousSceneSrc, setPreviousSceneSrc] = useState<string | undefined>();
-  const listeningNow = useMemo(() => listenerSeed + stationIndex * 6 + (isPlaying ? 11 : 0), [isPlaying, stationIndex]);
-
-  const requestFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => undefined);
-      return;
-    }
-
-    document.exitFullscreen().catch(() => undefined);
-  }, []);
+  const liveStatus = `${isStarted ? activeStation.title : "RCA jukebox"} / ${formatLocalTime(now)}`;
 
   const start = useCallback(() => {
+    if (sceneSrcRef.current !== activeStation.imageSrc) {
+      setPreviousSceneSrc(sceneSrcRef.current);
+      sceneSrcRef.current = activeStation.imageSrc;
+      setDisplayedSceneSrc(activeStation.imageSrc);
+      window.setTimeout(() => {
+        setPreviousSceneSrc(undefined);
+      }, 900);
+    }
+
     setIsStarted(true);
     setIsPlaying(true);
-  }, []);
+  }, [activeStation.imageSrc]);
 
   const togglePlay = useCallback(() => {
     if (!isStarted) {
@@ -260,20 +288,36 @@ export function ElvisCafe() {
   }, [activeStation.id]);
 
   useEffect(() => {
-    if (activeSceneSrc === sceneSrcRef.current) {
+    if (currentSceneSrc === sceneSrcRef.current) {
       return;
     }
 
     setPreviousSceneSrc(sceneSrcRef.current);
-    sceneSrcRef.current = activeSceneSrc;
-    setDisplayedSceneSrc(activeSceneSrc);
+    sceneSrcRef.current = currentSceneSrc;
+    setDisplayedSceneSrc(currentSceneSrc);
 
     const timeoutId = window.setTimeout(() => {
       setPreviousSceneSrc(undefined);
     }, 900);
 
     return () => window.clearTimeout(timeoutId);
-  }, [activeSceneSrc]);
+  }, [currentSceneSrc]);
+
+  useEffect(() => {
+    if (isStarted || !isMotionEnabled || startSceneSrcs.length < 2) {
+      return;
+    }
+
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setStartSceneIndex((current) => (current + 1) % startSceneSrcs.length);
+    }, startSceneRotationMs);
+
+    return () => window.clearInterval(intervalId);
+  }, [isMotionEnabled, isStarted]);
 
   useEffect(() => {
     if (!isStarted || !isPlaying || !isMotionEnabled || activeSceneSrcs.length < 2) {
@@ -290,6 +334,14 @@ export function ElvisCafe() {
 
     return () => window.clearInterval(intervalId);
   }, [activeSceneSrcs.length, isMotionEnabled, isPlaying, isStarted]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(new Date());
+    }, 30 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (youtubePlayerStatus === "playing" || youtubePlayerStatus === "ready") {
@@ -341,8 +393,14 @@ export function ElvisCafe() {
     const interval = window.setInterval(() => {
       setTimerSeconds((current) => {
         if (current <= 1) {
-          setIsTimerRunning(false);
-          return 0;
+          if (timerMode === "focus") {
+            setCompletedFocusSessions((completed) => completed + 1);
+            setTimerMode("break");
+            return breakMinutes * 60;
+          }
+
+          setTimerMode("focus");
+          return workMinutes * 60;
         }
 
         return current - 1;
@@ -350,7 +408,7 @@ export function ElvisCafe() {
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [isTimerRunning]);
+  }, [breakMinutes, isTimerRunning, timerMode, workMinutes]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -392,10 +450,6 @@ export function ElvisCafe() {
         goToStation(1);
       }
 
-      if (event.key.toLowerCase() === "f") {
-        requestFullscreen();
-      }
-
       if (event.key.toLowerCase() === "m") {
         setIsMotionEnabled((current) => !current);
       }
@@ -418,7 +472,6 @@ export function ElvisCafe() {
     isCatalogOpen,
     isStarted,
     isTimerOpen,
-    requestFullscreen,
     shareStation,
     sourceUrl,
     start,
@@ -472,7 +525,7 @@ export function ElvisCafe() {
       <section className="cafe-shell relative z-10 flex min-h-dvh flex-col justify-between" aria-hidden={isAboutOpen || isCatalogOpen}>
         <header className="flex items-start justify-between gap-4">
           <div className="font-display text-sm uppercase tracking-normal text-shell drop-shadow-[0_0_8px_rgba(212,188,156,0.8)] sm:text-base">
-            listening now {listeningNow}
+            listening now {liveStatus}
           </div>
 
           {isStarted ? (
@@ -489,9 +542,6 @@ export function ElvisCafe() {
               </IconButton>
               <IconButton label="Motion" onClick={() => setIsMotionEnabled((current) => !current)} active={isMotionEnabled} ariaPressed={isMotionEnabled}>
                 <Sparkles size={18} />
-              </IconButton>
-              <IconButton label="Fullscreen" onClick={requestFullscreen}>
-                <Maximize2 size={18} />
               </IconButton>
               <IconButton
                 ref={aboutButtonRef}
@@ -510,13 +560,50 @@ export function ElvisCafe() {
           <TimerPanel
             id={timerPanelId}
             seconds={timerSeconds}
+            mode={timerMode}
+            workMinutes={workMinutes}
+            breakMinutes={breakMinutes}
+            completedFocusSessions={completedFocusSessions}
             isRunning={isTimerRunning}
             onAddFive={() => setTimerSeconds((current) => current + 5 * 60)}
             onReset={() => {
-              setTimerSeconds(timerDefaultSeconds);
+              setTimerMode("focus");
+              setTimerSeconds(workMinutes * 60);
               setIsTimerRunning(false);
             }}
+            onSelectMode={(mode) => {
+              setTimerMode(mode);
+              setTimerSeconds((mode === "focus" ? workMinutes : breakMinutes) * 60);
+              setIsTimerRunning(false);
+            }}
+            onSkip={() => {
+              if (timerMode === "focus") {
+                setCompletedFocusSessions((completed) => completed + 1);
+                setTimerMode("break");
+                setTimerSeconds(breakMinutes * 60);
+                return;
+              }
+
+              setTimerMode("focus");
+              setTimerSeconds(workMinutes * 60);
+            }}
             onToggle={() => setIsTimerRunning((current) => !current)}
+            onWorkMinutesChange={(minutes) => {
+              const nextMinutes = clampMinutes(minutes);
+              setWorkMinutes(nextMinutes);
+
+              if (timerMode === "focus" && !isTimerRunning) {
+                setTimerSeconds(nextMinutes * 60);
+              }
+            }}
+            onBreakMinutesChange={(minutes) => {
+              const nextMinutes = clampMinutes(minutes);
+              setBreakMinutes(nextMinutes);
+
+              if (timerMode === "break" && !isTimerRunning) {
+                setTimerSeconds(nextMinutes * 60);
+              }
+            }}
             onClose={() => setIsTimerOpen(false)}
             returnFocusRef={timerButtonRef}
           />
@@ -528,7 +615,7 @@ export function ElvisCafe() {
           <button
             type="button"
             onClick={start}
-            className="relative mx-auto mb-8 block min-h-12 rounded bg-night/80 px-5 py-3 font-display text-base uppercase text-shell shadow-[0_0_28px_rgba(244,196,26,0.28)] backdrop-blur-sm transition hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold"
+            className="start-button relative mx-auto mb-8 block min-h-12 rounded bg-night/80 px-5 py-3 font-display text-base uppercase text-shell shadow-[0_0_28px_rgba(244,196,26,0.28)] backdrop-blur-sm transition hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold"
           >
             press any key to start
           </button>
@@ -830,7 +917,7 @@ function PlayerDock({
   onOpenSource,
 }: PlayerDockProps) {
   return (
-    <div className={`player-dock mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md p-3 backdrop-blur-md sm:grid-cols-[auto_minmax(10rem,1fr)_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
+    <div className={`player-dock relative mx-auto mb-2 grid w-full max-w-5xl gap-3 rounded-md p-3 backdrop-blur-md sm:grid-cols-[auto_minmax(10rem,1fr)_auto] sm:items-center sm:p-4 ${stationTheme.dockClass}`}>
       <div className="flex items-center justify-center gap-2 sm:justify-start">
         <IconButton label="Previous station" onClick={onPrevious}>
           <SkipBack size={19} />
@@ -933,24 +1020,42 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(function
 function TimerPanel({
   id,
   seconds,
+  mode,
+  workMinutes,
+  breakMinutes,
+  completedFocusSessions,
   isRunning,
   onAddFive,
   onClose,
+  onBreakMinutesChange,
+  onSelectMode,
+  onSkip,
   onReset,
   onToggle,
+  onWorkMinutesChange,
   returnFocusRef,
 }: {
   id: string;
   seconds: number;
+  mode: "focus" | "break";
+  workMinutes: number;
+  breakMinutes: number;
+  completedFocusSessions: number;
   isRunning: boolean;
   onAddFive: () => void;
+  onBreakMinutesChange: (minutes: number) => void;
   onClose: () => void;
+  onSelectMode: (mode: "focus" | "break") => void;
+  onSkip: () => void;
   onReset: () => void;
   onToggle: () => void;
+  onWorkMinutesChange: (minutes: number) => void;
   returnFocusRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const startButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+  const totalSeconds = (mode === "focus" ? workMinutes : breakMinutes) * 60;
+  const progress = totalSeconds > 0 ? Math.min(100, Math.max(0, ((totalSeconds - seconds) / totalSeconds) * 100)) : 0;
   const minutes = Math.floor(seconds / 60)
     .toString()
     .padStart(2, "0");
@@ -968,7 +1073,7 @@ function TimerPanel({
   return (
     <aside
       id={id}
-      className="absolute right-5 top-20 z-20 w-[min(18rem,calc(100vw-2.5rem))] rounded-md border border-gold/50 bg-night/75 p-4 text-center shadow-neon backdrop-blur-md sm:right-8"
+      className="absolute right-5 top-20 z-20 w-[min(22rem,calc(100vw-2.5rem))] rounded-md bg-night/82 p-4 text-shell shadow-[0_0_30px_rgba(244,196,26,0.22)] backdrop-blur-md sm:right-8"
       role="region"
       aria-labelledby={titleId}
     >
@@ -976,24 +1081,84 @@ function TimerPanel({
         <p id={titleId} className="sr-only">
           Pomodoro Timer
         </p>
-        <p className="flex-1 font-display text-4xl text-gold" aria-live="polite">
-          {minutes}:{remainingSeconds}
-        </p>
-        <button className="rounded border border-shell/35 p-2 hover:border-gold" type="button" onClick={onClose} aria-label="Close timer">
+        <div className="min-w-0 flex-1 text-left">
+          <p className="font-display text-xs uppercase text-neon/80">{mode === "focus" ? "focus session" : "short break"}</p>
+          <p className="font-display text-4xl leading-none text-gold" aria-live="polite">
+            {minutes}:{remainingSeconds}
+          </p>
+        </div>
+        <button className="rounded p-2 text-shell/80 hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold" type="button" onClick={onClose} aria-label="Close timer">
           <X size={14} />
         </button>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <button ref={startButtonRef} className="rounded border border-shell/35 px-3 py-2 text-sm uppercase hover:border-gold" type="button" onClick={onToggle}>
+
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-shell/12">
+        <div className="h-full rounded-full bg-gold transition-[width] duration-500" style={{ width: `${progress}%` }} />
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button
+          className={`rounded px-3 py-2 font-display text-sm uppercase transition focus:outline-none focus:ring-2 focus:ring-gold ${
+            mode === "focus" ? "bg-gold text-night" : "bg-shell/10 text-shell hover:text-gold"
+          }`}
+          type="button"
+          onClick={() => onSelectMode("focus")}
+          aria-pressed={mode === "focus"}
+        >
+          Focus
+        </button>
+        <button
+          className={`rounded px-3 py-2 font-display text-sm uppercase transition focus:outline-none focus:ring-2 focus:ring-gold ${
+            mode === "break" ? "bg-gold text-night" : "bg-shell/10 text-shell hover:text-gold"
+          }`}
+          type="button"
+          onClick={() => onSelectMode("break")}
+          aria-pressed={mode === "break"}
+        >
+          Break
+        </button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 text-left">
+        <label className="text-xs uppercase text-shell/70">
+          Focus min
+          <input
+            className="mt-1 w-full rounded bg-shell/10 px-2 py-2 text-sm text-shell accent-gold focus:outline-none focus:ring-2 focus:ring-gold"
+            type="number"
+            min="1"
+            max="60"
+            value={workMinutes}
+            onChange={(event) => onWorkMinutesChange(Number(event.target.value))}
+          />
+        </label>
+        <label className="text-xs uppercase text-shell/70">
+          Break min
+          <input
+            className="mt-1 w-full rounded bg-shell/10 px-2 py-2 text-sm text-shell accent-gold focus:outline-none focus:ring-2 focus:ring-gold"
+            type="number"
+            min="1"
+            max="60"
+            value={breakMinutes}
+            onChange={(event) => onBreakMinutesChange(Number(event.target.value))}
+          />
+        </label>
+      </div>
+
+      <div className="mt-4 grid grid-cols-4 gap-2">
+        <button ref={startButtonRef} className="rounded bg-shell/10 px-3 py-2 text-sm uppercase hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold" type="button" onClick={onToggle}>
           {isRunning ? "Pause" : "Start"}
         </button>
-        <button className="rounded border border-shell/35 px-3 py-2 text-sm uppercase hover:border-gold" type="button" onClick={onAddFive}>
+        <button className="rounded bg-shell/10 px-3 py-2 text-sm uppercase hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold" type="button" onClick={onAddFive}>
           +5:00
         </button>
-        <button className="grid place-items-center rounded border border-shell/35 px-3 py-2 hover:border-gold" type="button" onClick={onReset} aria-label="Reset timer">
+        <button className="grid place-items-center rounded bg-shell/10 px-3 py-2 hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold" type="button" onClick={onSkip} aria-label="Skip timer segment">
+          <SkipForward size={16} />
+        </button>
+        <button className="grid place-items-center rounded bg-shell/10 px-3 py-2 hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold" type="button" onClick={onReset} aria-label="Reset timer">
           <RotateCcw size={16} />
         </button>
       </div>
+      <p className="mt-3 text-left text-xs uppercase text-shell/56">completed focus sessions: {completedFocusSessions}</p>
     </aside>
   );
 }
@@ -1151,7 +1316,6 @@ function AboutModal({
     ["M", "background motion"],
     ["T", "share station"],
     ["V", "open original source"],
-    ["F", "fullscreen"],
     ["ESC", "close panels"],
   ];
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ElvisCafe } from "@/components/elvis-cafe";
 import { stations, type Station } from "@/lib/stations";
@@ -15,6 +15,7 @@ describe("ElvisCafe", () => {
     cleanup();
     stations.splice(0, stations.length, ...originalStations);
     delete window.YT;
+    vi.useRealTimers();
   });
 
   it("starts the player and changes stations", () => {
@@ -134,6 +135,24 @@ describe("ElvisCafe", () => {
 
     expect(screen.queryByRole("region", { name: /pomodoro timer/i })).not.toBeInTheDocument();
     expect(timerButton).toHaveFocus();
+  });
+
+  it("runs a focus segment into a break segment", () => {
+    vi.useFakeTimers();
+    render(<ElvisCafe />);
+
+    fireEvent.click(screen.getByRole("button", { name: /press any key to start/i }));
+    fireEvent.click(screen.getByRole("button", { name: /pomodoro timer/i }));
+    fireEvent.change(screen.getByLabelText(/focus min/i), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/break min/i), { target: { value: "1" } });
+    fireEvent.click(screen.getByRole("button", { name: /^start$/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(60_000);
+    });
+
+    expect(screen.getByRole("button", { name: /^break$/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText(/completed focus sessions: 1/i)).toBeInTheDocument();
   });
 
   it("auto-skips a YouTube station when the iframe API reports it unavailable", async () => {
